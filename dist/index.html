@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>RobinWifHat Endless Runner Game</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <script type="module" crossorigin src="/assets/index-CpYxUGwQ.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-BklHsEd9.css">
+</head>
+<body>
+  <div id="canvas-container"></div>
+
+  <!-- RobinWifHat Main Menu Overlay -->
+  <div id="menu-overlay" class="ui-layer">
+    <div class="menu-glass-card">
+      
+      <!-- 👑 ROBINWIFHAT HEADER -->
+      <div class="menu-header">
+        <div class="badge-row">
+          <img src="/robin_wif_hat_badge.jpg" alt="RobinWifHat Crest" class="header-badge-img pulse" />
+        </div>
+        <h1 class="glitch-title">ROBINWIFHAT</h1>
+        <p class="subtitle">ENDLESS RUNNER GAME</p>
+      </div>
+
+      <!-- Hero Character & Crest Showcase -->
+      <div class="hero-showcase-row">
+        <!-- Hero Card 1: CZAR -->
+        <div class="hero-card hero-czar">
+          <div class="hero-avatar-wrapper">
+            <img src="/czar_character.jpg" alt="CZAR - Cyber Skeleton Runner" class="hero-avatar-img" />
+          </div>
+          <div class="hero-info">
+            <span class="hero-tag">HERO RUNNER</span>
+            <h3 class="hero-name">CZAR</h3>
+            <div class="hero-stats">
+              <span>SPEED: ★★★★★</span>
+              <span>AGILITY: ★★★★★</span>
+              <span>STYLE: MAX</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Card 2: ROBINWIFHAT CREST -->
+        <div class="hero-card hero-badge">
+          <div class="hero-avatar-wrapper">
+            <img src="/robin_wif_hat_badge.jpg" alt="RobinWifHat Feather Emblem" class="hero-avatar-img" />
+          </div>
+          <div class="hero-info">
+            <span class="hero-tag">OFFICIAL CREST</span>
+            <h3 class="hero-name">ROBINWIFHAT</h3>
+            <div class="hero-stats">
+              <span>COIN MULTIPLIER: 2X</span>
+              <span>DISCO VIBE: 100%</span>
+              <span>COMMUNITY: 🔥</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="menu-tabs">
+        <button class="tab-btn active" data-tab="play">PLAY & STATS</button>
+        <button class="tab-btn" data-tab="characters">RUNNERS (CZAR)</button>
+        <button class="tab-btn" data-tab="themes">THEMES</button>
+        <button class="tab-btn" data-tab="custom">PROJECT ASSETS</button>
+      </div>
+
+      <div class="tab-content-container">
+        <!-- Tab 1: Play & Stats -->
+        <div id="tab-play" class="tab-pane active">
+          <div class="stats-overview">
+            <div class="stat-card">
+              <span class="stat-icon">🏆</span>
+              <span class="stat-title">HIGH SCORE</span>
+              <span id="stat-highscore" class="stat-val">0</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon">🪙</span>
+              <span class="stat-title">$ROBINWIFHAT COINS</span>
+              <span id="stat-totalcoins" class="stat-val">0</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon">🏃</span>
+              <span class="stat-title">MAX DISTANCE</span>
+              <span id="stat-maxdist" class="stat-val">0m</span>
+            </div>
+          </div>
+
+          <div class="current-selection-summary">
+            <div class="summary-pill">
+              <span class="pill-label">RUNNER:</span>
+              <span id="summary-runner-name" class="pill-value">CZAR</span>
+            </div>
+            <div class="summary-pill">
+              <span class="pill-label">THEME:</span>
+              <span id="summary-theme-name" class="pill-value">LUSH FOREST</span>
+            </div>
+          </div>
+
+          <div class="action-bar">
+            <button id="btn-start-game" class="btn-primary glow-btn">TAP TO RUN WITH CZAR</button>
+          </div>
+        </div>
+
+        <!-- Tab 2: Characters -->
+        <div id="tab-characters" class="tab-pane">
+          <div class="character-grid">
+            <div class="card-item selected" data-char-id="skeleton">
+              <span class="card-icon">💀</span>
+              <span class="card-title">CZAR</span>
+              <span class="card-desc">Cyber Skeleton Runner with beanie, red X eyepatch & wire spine</span>
+            </div>
+            <div class="card-item" data-char-id="ninja">
+              <span class="card-icon">🥷</span>
+              <span class="card-title">NEON SHADOW</span>
+              <span class="card-desc">Cybernetic stealth blade runner</span>
+            </div>
+            <div class="card-item" data-char-id="mech">
+              <span class="card-icon">🤖</span>
+              <span class="card-title">ASTRO MECH</span>
+              <span class="card-desc">Heavy armored exo-suit</span>
+            </div>
+            <div class="card-item" data-char-id="synth">
+              <span class="card-icon">🕶️</span>
+              <span class="card-title">SYNTH RIDER</span>
+              <span class="card-desc">Retro hover shade runner</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Themes -->
+        <div id="tab-themes" class="tab-pane">
+          <div class="theme-grid">
+            <div class="card-item selected" data-theme-id="forest">
+              <span class="card-icon">🌲</span>
+              <span class="card-title">LUSH FOREST</span>
+              <span class="card-desc">Sunlit woodland trail & pine canopy</span>
+            </div>
+            <div class="card-item" data-theme-id="cyberpunk">
+              <span class="card-icon">🌃</span>
+              <span class="card-title">CYBER CITY</span>
+              <span class="card-desc">Rainy neon city highway</span>
+            </div>
+            <div class="card-item" data-theme-id="cosmic">
+              <span class="card-icon">🌌</span>
+              <span class="card-title">COSMIC HIGHWAY</span>
+              <span class="card-desc">Translucent space nebulas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Custom Image Uploads -->
+        <div id="tab-custom" class="tab-pane">
+          <p class="custom-desc">RobinWifHat Official Project Assets & Custom Uploads!</p>
+          <div class="upload-box-container">
+            <div class="upload-card">
+              <span class="upload-icon">👤</span>
+              <span class="upload-title">CZAR Character Image</span>
+              <input type="file" id="upload-char-file" accept="image/*" class="file-input" />
+              <button id="btn-upload-char" class="btn-secondary">Choose Character</button>
+              <span id="char-upload-status" class="status-text">Loaded: CZAR</span>
+            </div>
+            <div class="upload-card">
+              <span class="upload-icon">🪙</span>
+              <span class="upload-title">$RobinWifHat Coin Texture</span>
+              <input type="file" id="upload-coin-file" accept="image/*" class="file-input" />
+              <button id="btn-upload-coin" class="btn-secondary">Choose Coin Icon</button>
+              <span id="coin-upload-status" class="status-text">Loaded: $RobinWifHat</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu-footer">
+        <span class="controls-hint">📱 Full-Screen Touch Swipe Gestures: Swipe Left/Right to Switch Lanes • Swipe Up to Jump • Swipe Down to Slide</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HUD Overlay -->
+  <div id="hud-overlay" class="ui-layer hidden">
+    <div class="hud-top">
+      <div class="hud-box">
+        <span class="hud-label">SCORE</span>
+        <span id="hud-score" class="hud-value">0</span>
+      </div>
+
+      <div class="hud-center">
+        <div id="hud-multiplier-badge" class="hud-badge pulse">1X SCORE</div>
+        <div class="speed-bar">
+          <div id="speed-fill" class="speed-fill"></div>
+        </div>
+      </div>
+
+      <div class="hud-box coin-box">
+        <span class="hud-icon">🪙</span>
+        <span id="hud-coins" class="hud-value">0</span>
+      </div>
+    </div>
+
+    <!-- Dynamic Active Powerup Banner -->
+    <div id="powerup-banner-box" class="powerup-banner hidden">
+      <span id="banner-icon">🚀</span>
+      <span id="banner-text">POWER-UP ACTIVATED!</span>
+    </div>
+
+    <!-- Active Powerups List -->
+    <div id="active-powerups-list" class="powerup-container"></div>
+
+    <button id="btn-pause" class="icon-btn pause-btn">⏸️</button>
+  </div>
+
+  <!-- Pause Overlay -->
+  <div id="pause-overlay" class="ui-layer hidden">
+    <div class="modal-card">
+      <h2 class="modal-title">GAME PAUSED</h2>
+      <div class="pause-actions">
+        <button id="btn-resume" class="btn-primary">RESUME</button>
+        <button id="btn-restart-pause" class="btn-secondary">RESTART</button>
+        <button id="btn-menu-pause" class="btn-secondary">MAIN MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over Overlay -->
+  <div id="game-over-overlay" class="ui-layer hidden">
+    <div class="modal-card">
+      <h2 class="modal-title danger-title">BEAR CAUGHT CZAR!</h2>
+      <div class="score-breakdown">
+        <div class="score-row">
+          <span>FINAL SCORE</span>
+          <span id="go-final-score" class="highlight-val">0</span>
+        </div>
+        <div class="score-row">
+          <span>$ROBINWIFHAT COINS</span>
+          <span id="go-coins" class="coin-val">0</span>
+        </div>
+        <div class="score-row">
+          <span>DISTANCE RUN</span>
+          <span id="go-distance">0m</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-restart-go" class="btn-primary glow-btn">RUN AGAIN WITH CZAR</button>
+        <button id="btn-menu-go" class="btn-secondary">MAIN MENU</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

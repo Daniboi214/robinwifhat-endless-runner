@@ -534,15 +534,32 @@ export class Player {
     this.animTime += delta * runSpeed * 0.9;
 
     if (this.isJetpackActive) {
+      // 🚀 FORWARD SUPERMAN FLIGHT (Head facing forward into travel direction, feet extending back!)
       this.bodyGroup.position.y = 1.1;
-      this.bodyGroup.rotation.x = Math.PI / 2.2;
-      this.leftArm.rotation.x = -Math.PI * 0.85;
-      this.rightArm.rotation.x = -Math.PI * 0.85;
-      this.leftLeg.rotation.x = 0.15;
-      this.rightLeg.rotation.x = 0.15;
+      this.bodyGroup.rotation.x = -Math.PI / 2.2;
+      this.bodyGroup.rotation.y = 0;
+      this.head.rotation.x = -0.3; // Head tilted forward facing ahead!
+      this.leftArm.rotation.x = Math.PI * 0.85;
+      this.rightArm.rotation.x = Math.PI * 0.85;
+      this.leftLeg.rotation.x = -0.15;
+      this.rightLeg.rotation.x = -0.15;
+    } else if (this.hasHoverboard) {
+      // 🛹 SKATEBOARD GLIDING STANCE (Wide stable knees, surfboard body angle, NO leg running!)
+      this.bodyGroup.position.y = 0.95;
+      this.bodyGroup.rotation.x = 0.05;
+      this.bodyGroup.rotation.y = 0.35; // Surfing sideways stance on the board!
+      this.head.rotation.y = -0.35; // Head turned straight forward facing ahead!
+      this.head.rotation.x = 0;
+      this.leftLeg.rotation.x = 0.25;
+      this.rightLeg.rotation.x = -0.25;
+      this.leftArm.rotation.x = -0.3;
+      this.rightArm.rotation.x = 0.3;
     } else if (this.isRidingBull) {
       this.bodyGroup.position.y = 1.6;
       this.bodyGroup.rotation.x = 0.2;
+      this.bodyGroup.rotation.y = 0;
+      this.head.rotation.y = 0;
+      this.head.rotation.x = 0;
       this.leftLeg.rotation.x = -Math.PI / 3;
       this.rightLeg.rotation.x = -Math.PI / 3;
       this.leftArm.rotation.x = -Math.PI / 4;
@@ -558,16 +575,26 @@ export class Player {
     } else if (this.isSliding) {
       this.bodyGroup.position.y = 0.5;
       this.bodyGroup.rotation.x = -Math.PI / 4;
+      this.bodyGroup.rotation.y = 0;
+      this.head.rotation.y = 0;
+      this.head.rotation.x = 0;
       this.leftLeg.rotation.x = -Math.PI / 3;
       this.rightLeg.rotation.x = -Math.PI / 3;
     } else if (!this.isGrounded) {
       this.bodyGroup.position.y = 1.1;
       this.bodyGroup.rotation.x = 0;
+      this.bodyGroup.rotation.y = 0;
+      this.head.rotation.y = 0;
+      this.head.rotation.x = 0;
       this.leftLeg.rotation.x = -Math.PI / 4;
       this.rightLeg.rotation.x = Math.PI / 6;
     } else {
+      // 🏃 GROUND RUNNING
       this.bodyGroup.position.y = 1.1;
       this.bodyGroup.rotation.x = 0.08;
+      this.bodyGroup.rotation.y = 0;
+      this.head.rotation.y = 0;
+      this.head.rotation.x = 0;
       const armAngle = Math.sin(this.animTime) * 0.8;
       const legAngle = Math.sin(this.animTime) * 1.0;
 

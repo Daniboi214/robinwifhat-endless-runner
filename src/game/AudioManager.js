@@ -60,7 +60,6 @@ export class AudioManager {
     }
   }
 
-  // 🎵 HIGH-VOLUME NEON ARCADE RUNNER BGM TRACK (Volume = 0.85!)
   startBGM() {
     if (this.muted || this.bgmPlaying) return;
     this.ensureContext();
@@ -74,7 +73,7 @@ export class AudioManager {
     this.bgmNode.playbackRate.value = this.playbackRate;
 
     this.bgmGain = this.ctx.createGain();
-    this.bgmGain.gain.value = 0.85; // Increased BGM volume for max energy!
+    this.bgmGain.gain.value = 0.85;
 
     this.bgmNode.connect(this.bgmGain);
     this.bgmGain.connect(this.ctx.destination);
@@ -83,9 +82,11 @@ export class AudioManager {
     this.bgmPlaying = true;
   }
 
+  // 🎵 GRADUAL BGM ACCELERATION (Unaffected by rocket booster pickup!)
   updateBGMTempo(runSpeed, isJetpack = false, isBull = false) {
+    // Music tempo strictly increases gradually as the game gets faster
     const rate = 1.0 + Math.min(0.35, (runSpeed - 32) * 0.008);
-    this.playbackRate = isJetpack ? rate * 1.15 : (isBull ? rate * 0.95 : rate);
+    this.playbackRate = rate;
 
     if (this.bgmNode && this.bgmNode.playbackRate) {
       this.bgmNode.playbackRate.setTargetAtTime(this.playbackRate, this.ctx.currentTime, 0.1);
@@ -120,7 +121,6 @@ export class AudioManager {
     source.start(0);
   }
 
-  // 🪙 ULTRA-SUBTLE COIN PICKUP SOUND (Volume = 0.07 so BGM dominates!)
   playCoin() {
     const now = Date.now();
     if (now - this.lastCoinTime > 1200) {
@@ -146,7 +146,6 @@ export class AudioManager {
     return;
   }
 
-  // 🐂 SUBTLE POWERUP SOUNDS (Volume = 0.08)
   playBullActivate() {
     this.playSample('bull_moo', 0.95, 0.12);
   }

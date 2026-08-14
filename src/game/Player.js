@@ -40,10 +40,8 @@ export class Player {
     this.currentCharacter = CHARACTERS.SKELETON;
     this.accentColor = CHARACTERS.SKELETON.defaultColor;
 
-    this.gltfModels = {};
+    this.gltfScenes = {};
     this.gltfLoader = new GLTFLoader();
-
-    this.loadGLTFModels();
 
     this.lanes = [-3.2, 0, 3.2];
     this.currentLane = 1;
@@ -70,47 +68,56 @@ export class Player {
 
     this.animTime = 0;
 
+    // Load 3D GLB Models immediately
+    this.loadGLTFModels();
     this.buildCharacterMesh();
   }
 
   loadGLTFModels() {
     Object.values(CHARACTERS).forEach(char => {
       if (char.glbPath) {
-        this.gltfLoader.load(char.glbPath, (gltf) => {
-          const loadedModel = gltf.scene;
-          
-          // Enable shadows and PBR material enhancements
-          loadedModel.traverse(child => {
-            if (child.isMesh) {
-              child.castShadow = true;
-              child.receiveShadow = true;
-              if (child.material) {
-                child.material.roughness = 0.4;
-                child.material.metalness = 0.2;
+        this.gltfLoader.load(
+          char.glbPath,
+          (gltf) => {
+            const loadedModel = gltf.scene;
+
+            // Enable shadow casting and material rendering
+            loadedModel.traverse(child => {
+              if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                if (child.material) {
+                  child.material.side = THREE.DoubleSide;
+                  child.material.needsUpdate = true;
+                }
               }
+            });
+
+            // Normalize size so character height is ~2.2 units
+            const bbox = new THREE.Box3().setFromObject(loadedModel);
+            const size = new THREE.Vector3();
+            bbox.getSize(size);
+            const maxDim = Math.max(size.x, size.y, size.z) || 1;
+            const targetScale = 2.2 / maxDim;
+            loadedModel.scale.set(targetScale, targetScale, targetScale);
+
+            // Position feet at bottom pivot
+            const newBox = new THREE.Box3().setFromObject(loadedModel);
+            loadedModel.position.y = -newBox.min.y;
+
+            // Store GLTF Scene
+            this.gltfScenes[char.id] = loadedModel;
+
+            // If this is the currently selected character, update mesh immediately
+            if (this.currentCharacter.id === char.id) {
+              this.buildCharacterMesh();
             }
-          });
-
-          // Normalize 3D Model Bounding Box & Scale to ~2.1 units height
-          const bbox = new THREE.Box3().setFromObject(loadedModel);
-          const size = new THREE.Vector3();
-          bbox.getSize(size);
-          const maxDim = Math.max(size.x, size.y, size.z) || 1;
-          const targetScale = 2.1 / maxDim;
-          loadedModel.scale.set(targetScale, targetScale, targetScale);
-
-          // Center pivot at bottom feet
-          const newBox = new THREE.Box3().setFromObject(loadedModel);
-          loadedModel.position.y = -newBox.min.y;
-
-          this.gltfModels[char.id] = loadedModel;
-
-          if (this.currentCharacter.id === char.id) {
-            this.buildCharacterMesh();
+          },
+          undefined,
+          (err) => {
+            console.warn(`GLTF Load error for ${char.name}:`, err);
           }
-        }, undefined, (err) => {
-          console.warn(`GLTF Load warning for ${char.name}:`, err);
-        });
+        );
       }
     });
   }
@@ -135,26 +142,31 @@ export class Player {
     this.buildCharacterMesh();
   }
 
-  // 🎮 REAL 3D GLTF/GLB MODEL RUNNER ENGINE
+  // 🎮 REAL 3D GLB MODEL RUNNER MESH SYSTEM
   buildCharacterMesh() {
     while (this.mesh.children.length > 0) {
       this.mesh.remove(this.mesh.children[0]);
     }
 
     const charId = this.currentCharacter.id;
-    const gltfModel = this.gltfModels[charId];
+    const gltfModel = this.gltfScenes[charId];
 
     this.bodyGroup = new THREE.Group();
     this.bodyGroup.position.y = 0;
     this.mesh.add(this.bodyGroup);
 
     if (gltfModel) {
-      // 🚀 REAL 3D GLB MODEL INSTANCE
-      this.activeGLTF = gltfModel.clone();
-      this.bodyGroup.add(this.activeGLTF);
+      // 🚀 RENDER REAL 3D GLB MODEL (Direct Scene Attachment for 100% Fidelity)
+      this.bodyGroup.add(gltfModel);
     } else {
-      // Fallback 3D Procedural Sculpted Mesh while GLB finishes loading
-      this.buildProceduralMesh(charId);
+      // High-Detail 3D Sculpted Fallback while GLB finishes loading
+      if (charId === 'ilkery') {
+        this.buildIlkerYFallback();
+      } else if (charId === 'modex') {
+        this.buildModeXFallback();
+      } else {
+        this.buildCzarFallback();
+      }
     }
 
     // 🚀 3D BACK-ATTACHED ROCKET JETPACK MESH
@@ -305,18 +317,77 @@ export class Player {
     this.bodyGroup.add(this.shieldMesh);
   }
 
-  buildProceduralMesh(charId) {
-    const mainColor = parseInt(this.accentColor.replace('#', '0x'));
-    const mat = new THREE.MeshStandardMaterial({ color: mainColor, roughness: 0.4 });
-    const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.3, 0.8, 16, 16), mat);
-    torso.position.y = 1.1;
-    torso.castShadow = true;
+  buildCzarFallback() {
+    const boneMat = new THREE.MeshStandardMaterial({ color: 0xe0e0d0, roughness: 0.4 });
+    const jacketMat = new THREE.MeshStandardMaterial({ color: 0x42464e, roughness: 0.4 });
+    const beanieMat = new THREE.MeshStandardMaterial({ color: 0x8b4513, roughness: 0.9 });
+    const eyepatchMat = new THREE.MeshStandardMaterial({ color: 0xcc1100 });
+
+    const spine = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.85, 16), boneMat);
+    spine.position.y = 0.5;
+    this.bodyGroup.add(spine);
+
+    [-0.28, 0.28].forEach((jx, idx) => {
+      const flap = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.75, 12, 12), jacketMat);
+      flap.position.set(jx, 0.5, 0);
+      flap.rotation.y = idx === 0 ? 0.25 : -0.25;
+      this.bodyGroup.add(flap);
+    });
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 24, 24), boneMat);
+    head.position.y = 1.25;
+    this.bodyGroup.add(head);
+
+    const beanie = new THREE.Mesh(new THREE.SphereGeometry(0.32, 20, 20, 0, Math.PI * 2, 0, Math.PI * 0.6), beanieMat);
+    beanie.position.y = 1.33;
+    this.bodyGroup.add(beanie);
+
+    const patch = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.13, 0.04), eyepatchMat);
+    patch.position.set(-0.11, 1.3, 0.26);
+    this.bodyGroup.add(patch);
+  }
+
+  buildIlkerYFallback() {
+    const tigerMat = new THREE.MeshStandardMaterial({ color: 0xe868a2, roughness: 0.5 });
+    const redSkinMat = new THREE.MeshStandardMaterial({ color: 0xd63031 });
+    const shirtMat = new THREE.MeshStandardMaterial({ color: 0x4a4e5a, roughness: 0.6 });
+
+    const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.32, 0.75, 16, 16), shirtMat);
+    torso.position.y = 0.5;
     this.bodyGroup.add(torso);
 
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 20, 20), mat);
-    head.position.y = 1.8;
-    head.castShadow = true;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.34, 24, 24), tigerMat);
+    head.position.y = 1.25;
     this.bodyGroup.add(head);
+
+    [-0.1, 0, 0.1].forEach((ex, idx) => {
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 12), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+      eye.position.set(ex, 1.3 + (idx === 1 ? 0.08 : 0), 0.26);
+      this.bodyGroup.add(eye);
+    });
+  }
+
+  buildModeXFallback() {
+    const skinMat = new THREE.MeshStandardMaterial({ color: 0x8d5b4c });
+    const cyanHairMat = new THREE.MeshStandardMaterial({ color: 0x70d6ff });
+    const beanieMat = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
+    const visorMat = new THREE.MeshBasicMaterial({ color: 0xffd166, transparent: true, opacity: 0.85 });
+
+    const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.3, 0.75, 16, 16), new THREE.MeshStandardMaterial({ color: 0xf8f9fa }));
+    torso.position.y = 0.5;
+    this.bodyGroup.add(torso);
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 24, 24), skinMat);
+    head.position.y = 1.25;
+    this.bodyGroup.add(head);
+
+    const beanie = new THREE.Mesh(new THREE.SphereGeometry(0.31, 20, 20, 0, Math.PI * 2, 0, Math.PI * 0.55), beanieMat);
+    beanie.position.y = 1.33;
+    this.bodyGroup.add(beanie);
+
+    const visor = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.12, 0.08), visorMat);
+    visor.position.set(0, 1.28, 0.22);
+    this.bodyGroup.add(visor);
   }
 
   moveLeft() {

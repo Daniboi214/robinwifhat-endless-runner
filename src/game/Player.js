@@ -142,7 +142,7 @@ export class Player {
       this.buildCzarJoints();
     }
 
-    // 🚀 3D BACK-ATTACHED ROCKET JETPACK MESH (Facing -Z Forward)
+    // 🚀 3D BACK-ATTACHED ROCKET JETPACK MESH
     this.jetpackMesh = new THREE.Group();
     const rocketMat = new THREE.MeshStandardMaterial({ color: 0x00f3ff, metalness: 0.8, roughness: 0.2 });
     const flameMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
@@ -690,15 +690,15 @@ export class Player {
     this.animTime += delta * runSpeed * 0.9;
 
     if (this.isJetpackActive) {
-      // 🚀 FORWARD SUPERMAN FLIGHT
+      // 🚀 FORWARD SUPERMAN FLIGHT (Head-first facing forward -Z down track!)
       this.bodyGroup.position.y = 1.1;
-      this.bodyGroup.rotation.x = Math.PI / 2.2;
+      this.bodyGroup.rotation.x = -Math.PI / 2.2;
       this.bodyGroup.rotation.y = 0;
-      if (this.headGroup) this.headGroup.rotation.x = 0.3;
-      if (this.leftArm) this.leftArm.rotation.x = -Math.PI * 0.85;
-      if (this.rightArm) this.rightArm.rotation.x = -Math.PI * 0.85;
-      if (this.leftLeg) this.leftLeg.rotation.x = 0.15;
-      if (this.rightLeg) this.rightLeg.rotation.x = 0.15;
+      if (this.headGroup) this.headGroup.rotation.x = -0.3;
+      if (this.leftArm) this.leftArm.rotation.x = Math.PI * 0.85;
+      if (this.rightArm) this.rightArm.rotation.x = Math.PI * 0.85;
+      if (this.leftLeg) this.leftLeg.rotation.x = -0.15;
+      if (this.rightLeg) this.rightLeg.rotation.x = -0.15;
     } else if (this.hasHoverboard) {
       // 🛹 SKATEBOARD GLIDING STANCE (Wide knees, no leg running!)
       this.bodyGroup.position.y = 0.95;

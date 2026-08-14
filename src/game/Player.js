@@ -105,7 +105,7 @@ export class Player {
             const newBox = new THREE.Box3().setFromObject(loadedModel);
             loadedModel.position.y = -newBox.min.y;
 
-            // Setup Mixamo Animation Mixer if GLB has skeletal animations
+            // Setup Mixamo Animation Mixer if GLB has animations
             if (gltf.animations && gltf.animations.length > 0) {
               const mixer = new THREE.AnimationMixer(loadedModel);
               const action = mixer.clipAction(gltf.animations[0]);
@@ -161,8 +161,14 @@ export class Player {
     this.bodyGroup.position.y = 0;
     this.mesh.add(this.bodyGroup);
 
+    // Pivot containers for procedural 3D stride action
+    this.upperBodyPivot = new THREE.Group();
+    this.lowerBodyPivot = new THREE.Group();
+    this.bodyGroup.add(this.upperBodyPivot);
+    this.bodyGroup.add(this.lowerBodyPivot);
+
     if (gltfModel) {
-      this.bodyGroup.add(gltfModel);
+      this.upperBodyPivot.add(gltfModel);
     } else {
       if (charId === 'ilkery') {
         this.buildIlkerYFallback();
@@ -329,26 +335,26 @@ export class Player {
 
     const spine = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.85, 16), boneMat);
     spine.position.y = 0.5;
-    this.bodyGroup.add(spine);
+    this.upperBodyPivot.add(spine);
 
     [-0.28, 0.28].forEach((jx, idx) => {
       const flap = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.75, 12, 12), jacketMat);
       flap.position.set(jx, 0.5, 0);
       flap.rotation.y = idx === 0 ? 0.25 : -0.25;
-      this.bodyGroup.add(flap);
+      this.upperBodyPivot.add(flap);
     });
 
     const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 24, 24), boneMat);
     head.position.y = 1.25;
-    this.bodyGroup.add(head);
+    this.upperBodyPivot.add(head);
 
     const beanie = new THREE.Mesh(new THREE.SphereGeometry(0.32, 20, 20, 0, Math.PI * 2, 0, Math.PI * 0.6), beanieMat);
     beanie.position.y = 1.33;
-    this.bodyGroup.add(beanie);
+    this.upperBodyPivot.add(beanie);
 
     const patch = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.13, 0.04), eyepatchMat);
     patch.position.set(-0.11, 1.3, 0.26);
-    this.bodyGroup.add(patch);
+    this.upperBodyPivot.add(patch);
   }
 
   buildIlkerYFallback() {
@@ -357,16 +363,16 @@ export class Player {
 
     const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.32, 0.75, 16, 16), shirtMat);
     torso.position.y = 0.5;
-    this.bodyGroup.add(torso);
+    this.upperBodyPivot.add(torso);
 
     const head = new THREE.Mesh(new THREE.SphereGeometry(0.34, 24, 24), tigerMat);
     head.position.y = 1.25;
-    this.bodyGroup.add(head);
+    this.upperBodyPivot.add(head);
 
     [-0.1, 0, 0.1].forEach((ex, idx) => {
       const eye = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 12), new THREE.MeshBasicMaterial({ color: 0xffffff }));
       eye.position.set(ex, 1.3 + (idx === 1 ? 0.08 : 0), 0.26);
-      this.bodyGroup.add(eye);
+      this.upperBodyPivot.add(eye);
     });
   }
 
@@ -377,19 +383,19 @@ export class Player {
 
     const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.3, 0.75, 16, 16), new THREE.MeshStandardMaterial({ color: 0xf8f9fa }));
     torso.position.y = 0.5;
-    this.bodyGroup.add(torso);
+    this.upperBodyPivot.add(torso);
 
     const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 24, 24), skinMat);
     head.position.y = 1.25;
-    this.bodyGroup.add(head);
+    this.upperBodyPivot.add(head);
 
     const beanie = new THREE.Mesh(new THREE.SphereGeometry(0.31, 20, 20, 0, Math.PI * 2, 0, Math.PI * 0.55), beanieMat);
     beanie.position.y = 1.33;
-    this.bodyGroup.add(beanie);
+    this.upperBodyPivot.add(beanie);
 
     const visor = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.12, 0.08), visorMat);
     visor.position.set(0, 1.28, 0.22);
-    this.bodyGroup.add(visor);
+    this.upperBodyPivot.add(visor);
   }
 
   moveLeft() {
@@ -479,7 +485,6 @@ export class Player {
     const leanAngle = (this.targetX - this.currentX) * -0.15;
     this.mesh.rotation.z = leanAngle;
 
-    // Update Mixamo Skeletal Animation Mixer if available
     const activeMixer = this.mixers[this.currentCharacter.id];
     if (activeMixer) {
       activeMixer.update(delta * (runSpeed / 20));
@@ -521,25 +526,25 @@ export class Player {
 
     this.animTime += delta * runSpeed * 0.9;
 
-    // Dynamic Procedural 3D Stride Locomotion (Hip stride, shoulder pitch, lateral sway, footfall bounce)
+    // 🏃 DYNAMIC 3D LIMB PITCH & STRIDE LOCOMOTION
     if (this.isJetpackActive) {
       this.bodyGroup.position.y = 0;
       this.bodyGroup.rotation.x = -Math.PI / 2.2;
       this.bodyGroup.rotation.y = 0;
       this.bodyGroup.rotation.z = 0;
-      this.bodyGroup.scale.set(1, 1, 1);
+      if (this.upperBodyPivot) this.upperBodyPivot.rotation.x = 0;
     } else if (this.hasHoverboard) {
       this.bodyGroup.position.y = 0.1;
       this.bodyGroup.rotation.x = 0.05;
       this.bodyGroup.rotation.y = 0.35;
       this.bodyGroup.rotation.z = 0;
-      this.bodyGroup.scale.set(1, 1, 1);
+      if (this.upperBodyPivot) this.upperBodyPivot.rotation.x = 0;
     } else if (this.isRidingBull) {
       this.bodyGroup.position.y = 1.0;
       this.bodyGroup.rotation.x = 0.2;
       this.bodyGroup.rotation.y = 0;
       this.bodyGroup.rotation.z = 0;
-      this.bodyGroup.scale.set(1, 1, 1);
+      if (this.upperBodyPivot) this.upperBodyPivot.rotation.x = 0;
 
       const bullAngle = Math.sin(this.animTime * 1.5) * 0.6;
       if (this.bullFrontLeft) {
@@ -553,24 +558,27 @@ export class Player {
       this.bodyGroup.rotation.x = -Math.PI / 4;
       this.bodyGroup.rotation.y = 0;
       this.bodyGroup.rotation.z = 0;
-      this.bodyGroup.scale.set(1, 0.5, 1);
+      if (this.upperBodyPivot) this.upperBodyPivot.rotation.x = 0;
     } else if (!this.isGrounded) {
       this.bodyGroup.position.y = 0;
       this.bodyGroup.rotation.x = -0.15;
       this.bodyGroup.rotation.y = 0;
       this.bodyGroup.rotation.z = 0;
-      this.bodyGroup.scale.set(1, 1, 1);
+      if (this.upperBodyPivot) this.upperBodyPivot.rotation.x = 0;
     } else {
-      // 🏃 DYNAMIC 3D RUNNING STRIDE LOCOMOTION (Hip twist stride, shoulder pitch, footfall bounce)
-      const bounce = Math.abs(Math.sin(this.animTime * 2.5)) * 0.22;
-      const hipStride = Math.cos(this.animTime * 2.5) * 0.25;
-      const lateralSway = Math.sin(this.animTime * 2.5) * 0.12;
+      // 🏃 DYNAMIC 3D RUNNING ACTION (Upper body stride pitch, hip twist, footfall bounce)
+      const bounce = Math.abs(Math.sin(this.animTime * 2.5)) * 0.25;
+      const hipStride = Math.cos(this.animTime * 2.5) * 0.35; // Hip twist stride
+      const shoulderPitch = Math.sin(this.animTime * 2.5) * 0.25; // Shoulder/arm swing pitch
 
       this.bodyGroup.position.y = bounce;
-      this.bodyGroup.rotation.y = hipStride; // Dynamic 3D Hip/Torso Stride Rotation!
-      this.bodyGroup.rotation.z = lateralSway; // Dynamic Running Sway!
+      this.bodyGroup.rotation.y = hipStride;
+      this.bodyGroup.rotation.z = Math.sin(this.animTime * 2.5) * 0.12;
       this.bodyGroup.rotation.x = 0.08;
-      this.bodyGroup.scale.set(1, 1, 1);
+
+      if (this.upperBodyPivot) {
+        this.upperBodyPivot.rotation.x = shoulderPitch; // Arms & shoulders swing in opposition!
+      }
     }
 
     if (this.hasShield && this.shieldMesh) {

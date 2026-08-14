@@ -606,7 +606,7 @@ export class Player {
   activateBullRide(duration = 10.0) {
     this.isRidingBull = true;
     this.bullTimer = duration;
-    if (this.bullMesh) this.bullMesh.visible = true;
+    if (this.bullMesh) this.bullMesh.visible = !this.isJetpackActive;
   }
 
   deactivateBullRide() {
@@ -616,7 +616,7 @@ export class Player {
 
   activateHoverboard() {
     this.hasHoverboard = true;
-    if (this.hoverboardMesh) this.hoverboardMesh.visible = true;
+    if (this.hoverboardMesh) this.hoverboardMesh.visible = !this.isJetpackActive;
   }
 
   deactivateHoverboard() {
@@ -638,11 +638,17 @@ export class Player {
     this.isJetpackActive = true;
     this.jetpackTimer = duration;
     if (this.jetpackMesh) this.jetpackMesh.visible = true;
+    // 🚀 HIDE GROUND MOUNTS (Skateboard & Bull) WHILE IN THE AIR WITH JETPACK!
+    if (this.hoverboardMesh) this.hoverboardMesh.visible = false;
+    if (this.bullMesh) this.bullMesh.visible = false;
   }
 
   deactivateJetpack() {
     this.isJetpackActive = false;
     if (this.jetpackMesh) this.jetpackMesh.visible = false;
+    // 🛬 RESTORE GROUND MOUNTS WHEN DESCENT COMPLETE IF TIMERS REMAIN ACTIVE!
+    if (this.hasHoverboard && this.hoverboardMesh) this.hoverboardMesh.visible = true;
+    if (this.isRidingBull && this.bullMesh) this.bullMesh.visible = true;
   }
 
   // 🏃 REAL 3D ARM & LEG STRIDE RUNNING ANIMATION
@@ -664,6 +670,10 @@ export class Player {
       this.posY += (targetY - this.posY) * 5 * delta;
       this.mesh.position.y = this.posY;
       this.isGrounded = false;
+
+      // Ensure ground mounts are hidden while high in the air
+      if (this.hoverboardMesh) this.hoverboardMesh.visible = false;
+      if (this.bullMesh) this.bullMesh.visible = false;
 
       if (this.jetpackTimer <= 0) {
         this.deactivateJetpack();

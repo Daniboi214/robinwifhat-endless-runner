@@ -104,7 +104,7 @@ export class Player {
 
     const charId = this.currentCharacter.id;
 
-    // Master Body Group (Rotated 180deg so characters face FORWARD down the track!)
+    // Master Body Group
     this.bodyGroup = new THREE.Group();
     this.bodyGroup.position.y = 1.1;
     this.mesh.add(this.bodyGroup);
@@ -142,7 +142,7 @@ export class Player {
       this.buildCzarJoints();
     }
 
-    // 🚀 3D BACK-ATTACHED ROCKET JETPACK MESH
+    // 🚀 3D BACK-ATTACHED ROCKET JETPACK MESH (Facing -Z Forward)
     this.jetpackMesh = new THREE.Group();
     const rocketMat = new THREE.MeshStandardMaterial({ color: 0x00f3ff, metalness: 0.8, roughness: 0.2 });
     const flameMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
@@ -165,7 +165,7 @@ export class Player {
     this.jetpackMesh.visible = false;
     this.bodyGroup.add(this.jetpackMesh);
 
-    // 🐂 RAGING BULL MESH
+    // 🐂 RAGING BULL MESH (Facing -Z Forward down track!)
     this.bullMesh = new THREE.Group();
     const bullMat = new THREE.MeshStandardMaterial({ color: 0x331c0e, roughness: 0.5, metalness: 0.3 });
     const hornMat = new THREE.MeshStandardMaterial({ color: 0xe0e0e0, roughness: 0.2, metalness: 0.9 });
@@ -179,46 +179,46 @@ export class Player {
 
     const bullHumpGeo = new THREE.SphereGeometry(0.6, 16, 16);
     const bullHump = new THREE.Mesh(bullHumpGeo, bullMat);
-    bullHump.position.set(0, 0.4, 0.3);
+    bullHump.position.set(0, 0.4, -0.3);
     bullTorso.add(bullHump);
 
     const bullHeadGeo = new THREE.SphereGeometry(0.48, 20, 20);
     const bullHead = new THREE.Mesh(bullHeadGeo, bullMat);
-    bullHead.position.set(0, 0.3, 1.2);
+    bullHead.position.set(0, 0.3, -1.2);
     bullHead.castShadow = true;
     this.bullMesh.add(bullHead);
 
     [-0.45, 0.45].forEach(hx => {
       const hornGeo = new THREE.ConeGeometry(0.14, 0.9, 16);
-      hornGeo.rotateX(Math.PI / 3);
+      hornGeo.rotateX(-Math.PI / 3);
       hornGeo.rotateZ(hx > 0 ? 0.3 : -0.3);
       const horn = new THREE.Mesh(hornGeo, hornMat);
-      horn.position.set(hx, 0.35, 0.2);
+      horn.position.set(hx, 0.35, -0.2);
       bullHead.add(horn);
     });
 
     [-0.28, 0.28].forEach(hx => {
       const eyeGeo = new THREE.SphereGeometry(0.08, 12, 12);
       const eye = new THREE.Mesh(eyeGeo, bullEyeMat);
-      eye.position.set(hx, 0.15, 0.4);
+      eye.position.set(hx, 0.15, -0.4);
       bullHead.add(eye);
     });
 
     const bullLegGeo = new THREE.CapsuleGeometry(0.18, 0.7, 12, 12);
     this.bullFrontLeft = new THREE.Mesh(bullLegGeo, bullMat);
-    this.bullFrontLeft.position.set(-0.45, -0.7, 0.7);
+    this.bullFrontLeft.position.set(-0.45, -0.7, -0.7);
     this.bullMesh.add(this.bullFrontLeft);
 
     this.bullFrontRight = new THREE.Mesh(bullLegGeo, bullMat);
-    this.bullFrontRight.position.set(0.45, -0.7, 0.7);
+    this.bullFrontRight.position.set(0.45, -0.7, -0.7);
     this.bullMesh.add(this.bullFrontRight);
 
     this.bullBackLeft = new THREE.Mesh(bullLegGeo, bullMat);
-    this.bullBackLeft.position.set(-0.45, -0.7, -0.7);
+    this.bullBackLeft.position.set(-0.45, -0.7, 0.7);
     this.bullMesh.add(this.bullBackLeft);
 
     this.bullBackRight = new THREE.Mesh(bullLegGeo, bullMat);
-    this.bullBackRight.position.set(0.45, -0.7, -0.7);
+    this.bullBackRight.position.set(0.45, -0.7, 0.7);
     this.bullMesh.add(this.bullBackRight);
 
     this.bullMesh.position.y = 0.6;

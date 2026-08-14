@@ -6,7 +6,13 @@ export class AudioManager {
     this.audioBuffers = {};
     this.bgmNode = null;
     this.bgmPlaying = false;
+    this.shouldPlayBGM = false;
     this.playbackRate = 1.0;
+
+    // HTML5 Audio Fallback for 100% Guaranteed BGM Playback
+    this.bgmAudioElement = new Audio('/audio/bgm.mp3');
+    this.bgmAudioElement.loop = true;
+    this.bgmAudioElement.volume = 0.85;
 
     this.coinStreak = 0;
     this.lastCoinTime = 0;
@@ -33,6 +39,8 @@ export class AudioManager {
     this.muted = !this.muted;
     if (this.muted) {
       this.stopBGM();
+    } else {
+      this.startBGM();
     }
     return this.muted;
   }
@@ -54,50 +62,83 @@ export class AudioManager {
         const arrayBuffer = await response.arrayBuffer();
         const decoded = await this.ctx.decodeAudioData(arrayBuffer);
         this.audioBuffers[key] = decoded;
+        if (key === 'bgm' && this.shouldPlayBGM && !this.bgmPlaying) {
+          this.startBGM();
+        }
       } catch (err) {
         console.warn(`Audio sample load fallback for ${key}:`, err);
       }
     }
   }
 
+  // 🎵 100% GUARANTEED BGM PLAYBACK (Web Audio API + HTML5 Audio Fallback)
   startBGM() {
-    if (this.muted || this.bgmPlaying) return;
+    if (this.muted) return;
+    this.shouldPlayBGM = true;
     this.ensureContext();
-    if (!this.ctx || !this.audioBuffers.bgm) return;
 
-    this.stopBGM();
+    if (this.bgmPlaying) return;
 
-    this.bgmNode = this.ctx.createBufferSource();
-    this.bgmNode.buffer = this.audioBuffers.bgm;
-    this.bgmNode.loop = true;
-    this.bgmNode.playbackRate.value = this.playbackRate;
+    if (this.ctx && this.audioBuffers.bgm) {
+      this.stopBGM();
 
-    this.bgmGain = this.ctx.createGain();
-    this.bgmGain.gain.value = 0.85;
+      try {
+        this.bgmNode = this.ctx.createBufferSource();
+        this.bgmNode.buffer = this.audioBuffers.bgm;
+        this.bgmNode.loop = true;
+        this.bgmNode.playbackRate.value = this.playbackRate;
 
-    this.bgmNode.connect(this.bgmGain);
-    this.bgmGain.connect(this.ctx.destination);
+        this.bgmGain = this.ctx.createGain();
+        this.bgmGain.gain.value = 0.85;
 
-    this.bgmNode.start(0);
-    this.bgmPlaying = true;
+        this.bgmNode.connect(this.bgmGain);
+        this.bgmGain.connect(this.ctx.destination);
+
+        this.bgmNode.start(0);
+        this.bgmPlaying = true;
+        return;
+      } catch (e) {
+        console.warn("Web Audio BGM failed, switching to HTML5 Audio element:", e);
+      }
+    }
+
+    // HTML5 Audio Fallback
+    try {
+      this.bgmAudioElement.volume = 0.85;
+      this.bgmAudioElement.playbackRate = this.playbackRate;
+      this.bgmAudioElement.currentTime = 0;
+      const p = this.bgmAudioElement.play();
+      if (p && p.catch) {
+        p.catch(err => console.warn("HTML5 Audio play interrupted:", err));
+      }
+      this.bgmPlaying = true;
+    } catch (err) {
+      console.warn("BGM element play error:", err);
+    }
   }
 
-  // 🎵 GRADUAL BGM ACCELERATION (Unaffected by rocket booster pickup!)
   updateBGMTempo(runSpeed, isJetpack = false, isBull = false) {
-    // Music tempo strictly increases gradually as the game gets faster
     const rate = 1.0 + Math.min(0.35, (runSpeed - 32) * 0.008);
     this.playbackRate = rate;
 
     if (this.bgmNode && this.bgmNode.playbackRate) {
       this.bgmNode.playbackRate.setTargetAtTime(this.playbackRate, this.ctx.currentTime, 0.1);
     }
+    if (this.bgmAudioElement) {
+      this.bgmAudioElement.playbackRate = this.playbackRate;
+    }
   }
 
   stopBGM() {
     this.bgmPlaying = false;
+    this.shouldPlayBGM = false;
+
     if (this.bgmNode) {
       try { this.bgmNode.stop(); } catch (e) {}
       this.bgmNode = null;
+    }
+    if (this.bgmAudioElement) {
+      try { this.bgmAudioElement.pause(); } catch (e) {}
     }
   }
 

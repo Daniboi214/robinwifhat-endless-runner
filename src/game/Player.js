@@ -41,6 +41,7 @@ export class Player {
     this.accentColor = CHARACTERS.SKELETON.defaultColor;
 
     this.gltfScenes = {};
+    this.mixers = {};
     this.gltfLoader = new GLTFLoader();
 
     this.lanes = [-3.2, 0, 3.2];
@@ -68,7 +69,6 @@ export class Player {
 
     this.animTime = 0;
 
-    // Load 3D GLB Models immediately
     this.loadGLTFModels();
     this.buildCharacterMesh();
   }
@@ -105,17 +105,23 @@ export class Player {
             const newBox = new THREE.Box3().setFromObject(loadedModel);
             loadedModel.position.y = -newBox.min.y;
 
-            // Store GLTF Scene
+            // Setup Mixamo Animation Mixer if GLB has skeletal animations
+            if (gltf.animations && gltf.animations.length > 0) {
+              const mixer = new THREE.AnimationMixer(loadedModel);
+              const action = mixer.clipAction(gltf.animations[0]);
+              action.play();
+              this.mixers[char.id] = mixer;
+            }
+
             this.gltfScenes[char.id] = loadedModel;
 
-            // If this is the currently selected character, update mesh immediately
             if (this.currentCharacter.id === char.id) {
               this.buildCharacterMesh();
             }
           },
           undefined,
           (err) => {
-            console.warn(`GLTF Load error for ${char.name}:`, err);
+            console.warn(`GLTF Load warning for ${char.name}:`, err);
           }
         );
       }
@@ -156,10 +162,8 @@ export class Player {
     this.mesh.add(this.bodyGroup);
 
     if (gltfModel) {
-      // 🚀 RENDER REAL 3D GLB MODEL (Direct Scene Attachment for 100% Fidelity)
       this.bodyGroup.add(gltfModel);
     } else {
-      // High-Detail 3D Sculpted Fallback while GLB finishes loading
       if (charId === 'ilkery') {
         this.buildIlkerYFallback();
       } else if (charId === 'modex') {
@@ -349,7 +353,6 @@ export class Player {
 
   buildIlkerYFallback() {
     const tigerMat = new THREE.MeshStandardMaterial({ color: 0xe868a2, roughness: 0.5 });
-    const redSkinMat = new THREE.MeshStandardMaterial({ color: 0xd63031 });
     const shirtMat = new THREE.MeshStandardMaterial({ color: 0x4a4e5a, roughness: 0.6 });
 
     const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.32, 0.75, 16, 16), shirtMat);
@@ -369,7 +372,6 @@ export class Player {
 
   buildModeXFallback() {
     const skinMat = new THREE.MeshStandardMaterial({ color: 0x8d5b4c });
-    const cyanHairMat = new THREE.MeshStandardMaterial({ color: 0x70d6ff });
     const beanieMat = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
     const visorMat = new THREE.MeshBasicMaterial({ color: 0xffd166, transparent: true, opacity: 0.85 });
 
@@ -477,6 +479,12 @@ export class Player {
     const leanAngle = (this.targetX - this.currentX) * -0.15;
     this.mesh.rotation.z = leanAngle;
 
+    // Update Mixamo Skeletal Animation Mixer if available
+    const activeMixer = this.mixers[this.currentCharacter.id];
+    if (activeMixer) {
+      activeMixer.update(delta * (runSpeed / 20));
+    }
+
     if (this.isRidingBull) {
       this.bullTimer -= delta;
       if (this.bullTimer <= 0) this.deactivateBullRide();
@@ -513,21 +521,24 @@ export class Player {
 
     this.animTime += delta * runSpeed * 0.9;
 
-    // Smooth Running Animation for 3D GLTF Character Models
+    // Dynamic Procedural 3D Stride Locomotion (Hip stride, shoulder pitch, lateral sway, footfall bounce)
     if (this.isJetpackActive) {
       this.bodyGroup.position.y = 0;
       this.bodyGroup.rotation.x = -Math.PI / 2.2;
       this.bodyGroup.rotation.y = 0;
+      this.bodyGroup.rotation.z = 0;
       this.bodyGroup.scale.set(1, 1, 1);
     } else if (this.hasHoverboard) {
       this.bodyGroup.position.y = 0.1;
       this.bodyGroup.rotation.x = 0.05;
       this.bodyGroup.rotation.y = 0.35;
+      this.bodyGroup.rotation.z = 0;
       this.bodyGroup.scale.set(1, 1, 1);
     } else if (this.isRidingBull) {
       this.bodyGroup.position.y = 1.0;
       this.bodyGroup.rotation.x = 0.2;
       this.bodyGroup.rotation.y = 0;
+      this.bodyGroup.rotation.z = 0;
       this.bodyGroup.scale.set(1, 1, 1);
 
       const bullAngle = Math.sin(this.animTime * 1.5) * 0.6;
@@ -541,20 +552,24 @@ export class Player {
       this.bodyGroup.position.y = -0.4;
       this.bodyGroup.rotation.x = -Math.PI / 4;
       this.bodyGroup.rotation.y = 0;
+      this.bodyGroup.rotation.z = 0;
       this.bodyGroup.scale.set(1, 0.5, 1);
     } else if (!this.isGrounded) {
       this.bodyGroup.position.y = 0;
       this.bodyGroup.rotation.x = -0.15;
       this.bodyGroup.rotation.y = 0;
+      this.bodyGroup.rotation.z = 0;
       this.bodyGroup.scale.set(1, 1, 1);
     } else {
-      // 🏃 3D GROUND RUNNING STRIDE BOUNCE & LEAN
-      const bounce = Math.abs(Math.sin(this.animTime * 2.5)) * 0.18;
-      const tilt = Math.sin(this.animTime * 2.5) * 0.06;
+      // 🏃 DYNAMIC 3D RUNNING STRIDE LOCOMOTION (Hip twist stride, shoulder pitch, footfall bounce)
+      const bounce = Math.abs(Math.sin(this.animTime * 2.5)) * 0.22;
+      const hipStride = Math.cos(this.animTime * 2.5) * 0.25;
+      const lateralSway = Math.sin(this.animTime * 2.5) * 0.12;
+
       this.bodyGroup.position.y = bounce;
-      this.bodyGroup.rotation.z = tilt;
-      this.bodyGroup.rotation.x = 0.05;
-      this.bodyGroup.rotation.y = 0;
+      this.bodyGroup.rotation.y = hipStride; // Dynamic 3D Hip/Torso Stride Rotation!
+      this.bodyGroup.rotation.z = lateralSway; // Dynamic Running Sway!
+      this.bodyGroup.rotation.x = 0.08;
       this.bodyGroup.scale.set(1, 1, 1);
     }
 

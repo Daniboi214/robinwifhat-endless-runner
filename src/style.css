@@ -2,16 +2,16 @@
   --font-title: 'Orbitron', sans-serif;
   --font-body: 'Rajdhani', sans-serif;
   
-  --bg-dark: #070913;
+  --bg-dark: #091222;
   --neon-cyan: #00f3ff;
   --neon-magenta: #ff0055;
   --neon-gold: #ffd700;
   --neon-green: #7ca84d;
   --neon-purple: #b000ff;
   
-  --glass-bg: rgba(13, 17, 34, 0.88);
-  --glass-border: rgba(124, 168, 77, 0.45);
-  --glass-glow: rgba(124, 168, 77, 0.25);
+  --glass-bg: rgba(20, 34, 52, 0.78);
+  --glass-border: rgba(0, 243, 255, 0.45);
+  --glass-glow: rgba(0, 243, 255, 0.3);
 }
 
 * {
@@ -30,7 +30,7 @@ html, body {
   background-color: var(--bg-dark);
   font-family: var(--font-body);
   color: #ffffff;
-  touch-action: none;
+  touch-action: manipulation;
 }
 
 #canvas-container {
@@ -243,25 +243,30 @@ html, body {
 }
 
 #menu-overlay {
-  justify-content: center;
+  pointer-events: auto !important;
+  justify-content: flex-start;
   align-items: center;
-  background: radial-gradient(circle at center, rgba(13, 24, 17, 0.88) 0%, rgba(7, 9, 19, 0.96) 100%);
-  backdrop-filter: blur(16px);
-  padding: 15px;
-  overflow-y: auto;
+  background: radial-gradient(circle at center, rgba(18, 36, 60, 0.72) 0%, rgba(10, 20, 36, 0.85) 100%);
+  backdrop-filter: blur(20px);
+  padding: 20px 15px;
+  overflow-y: scroll !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
 }
 
 .menu-glass-card {
   width: 100%;
   max-width: 860px;
-  background: var(--glass-bg);
+  background: rgba(20, 34, 54, 0.78);
   border: 1.5px solid var(--glass-border);
   border-radius: 24px;
   padding: 24px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 35px rgba(124, 168, 77, 0.3);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 35px rgba(0, 243, 255, 0.2);
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin: auto 0;
+  touch-action: pan-y !important;
 }
 
 /* 👑 ROBINWIFHAT HEADER STYLING */
@@ -611,4 +616,176 @@ html, body {
   flex-direction: column;
   gap: 10px;
   width: 100%;
+}
+
+/* 📱 COMPACT MOBILE HOMEPAGE LAYOUT (Fits single phone screen height!) */
+@media (max-width: 768px) {
+  #menu-overlay {
+    padding: 8px 6px !important;
+  }
+
+  .menu-glass-card {
+    padding: 10px 12px !important;
+    gap: 8px !important;
+    border-radius: 16px !important;
+    max-width: 100% !important;
+  }
+
+  .badge-row {
+    margin-bottom: 2px !important;
+  }
+
+  .header-badge-img {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .glitch-title {
+    font-size: 1.35rem !important;
+    letter-spacing: 2px !important;
+  }
+
+  .subtitle {
+    font-size: 0.7rem !important;
+    letter-spacing: 1.5px !important;
+    margin-top: 0 !important;
+  }
+
+  .hero-showcase-row {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+    margin-top: 2px !important;
+  }
+
+  .hero-card {
+    padding: 6px 6px !important;
+    gap: 6px !important;
+    border-radius: 10px !important;
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+
+  .hero-avatar-wrapper {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 8px !important;
+  }
+
+  .hero-info {
+    align-items: center !important;
+    gap: 1px !important;
+  }
+
+  .hero-tag {
+    font-size: 0.52rem !important;
+    letter-spacing: 0.8px !important;
+  }
+
+  .hero-name {
+    font-size: 0.82rem !important;
+  }
+
+  .hero-stats {
+    display: none !important;
+  }
+
+  .menu-tabs {
+    gap: 4px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .tab-btn {
+    font-size: 0.68rem !important;
+    padding: 6px 2px !important;
+  }
+
+  .tab-content-container {
+    min-height: auto !important;
+  }
+
+  .tab-pane {
+    gap: 8px !important;
+  }
+
+  .stats-overview {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .stat-card {
+    padding: 6px 4px !important;
+    gap: 2px !important;
+    border-radius: 10px !important;
+  }
+
+  .stat-icon {
+    font-size: 1.0rem !important;
+  }
+
+  .stat-title {
+    font-size: 0.6rem !important;
+  }
+
+  .stat-val {
+    font-size: 1.05rem !important;
+  }
+
+  .summary-pill {
+    padding: 4px 10px !important;
+    font-size: 0.72rem !important;
+  }
+
+  .action-btn {
+    padding: 10px 12px !important;
+    font-size: 0.9rem !important;
+    border-radius: 10px !important;
+    letter-spacing: 1px !important;
+  }
+
+  .controls-list {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .ctrl-item {
+    padding: 6px !important;
+    gap: 6px !important;
+  }
+
+  .key-badge {
+    font-size: 0.7rem !important;
+    padding: 2px 6px !important;
+  }
+
+  .ctrl-desc {
+    font-size: 0.72rem !important;
+  }
+
+  .char-select-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .char-card {
+    padding: 8px 6px !important;
+    gap: 6px !important;
+    border-radius: 10px !important;
+  }
+
+  .char-avatar-box {
+    width: 46px !important;
+    height: 46px !important;
+  }
+
+  .char-card-name {
+    font-size: 0.8rem !important;
+  }
+
+  .char-card-desc {
+    font-size: 0.6rem !important;
+  }
+
+  .controls-hint {
+    font-size: 0.7rem !important;
+  }
 }

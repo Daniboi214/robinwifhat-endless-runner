@@ -96,7 +96,7 @@ export class Player {
     this.buildCharacterMesh();
   }
 
-  // 🏃 JOINTED 3D MODULAR RUNNER BODY SYSTEM (Arm swinging & Leg striding)
+  // 🏃 JOINTED 3D MODULAR RUNNER BODY SYSTEM
   buildCharacterMesh() {
     while (this.mesh.children.length > 0) {
       this.mesh.remove(this.mesh.children[0]);
@@ -104,7 +104,7 @@ export class Player {
 
     const charId = this.currentCharacter.id;
 
-    // Master Body Group
+    // Master Body Group (Rotated 180deg so characters face FORWARD down the track!)
     this.bodyGroup = new THREE.Group();
     this.bodyGroup.position.y = 1.1;
     this.mesh.add(this.bodyGroup);
@@ -161,7 +161,7 @@ export class Player {
       this.jetpackMesh.add(flame);
     });
 
-    this.jetpackMesh.position.set(0, 0.2, -0.28);
+    this.jetpackMesh.position.set(0, 0.2, 0.28);
     this.jetpackMesh.visible = false;
     this.bodyGroup.add(this.jetpackMesh);
 
@@ -179,46 +179,46 @@ export class Player {
 
     const bullHumpGeo = new THREE.SphereGeometry(0.6, 16, 16);
     const bullHump = new THREE.Mesh(bullHumpGeo, bullMat);
-    bullHump.position.set(0, 0.4, -0.3);
+    bullHump.position.set(0, 0.4, 0.3);
     bullTorso.add(bullHump);
 
     const bullHeadGeo = new THREE.SphereGeometry(0.48, 20, 20);
     const bullHead = new THREE.Mesh(bullHeadGeo, bullMat);
-    bullHead.position.set(0, 0.3, -1.2);
+    bullHead.position.set(0, 0.3, 1.2);
     bullHead.castShadow = true;
     this.bullMesh.add(bullHead);
 
     [-0.45, 0.45].forEach(hx => {
       const hornGeo = new THREE.ConeGeometry(0.14, 0.9, 16);
-      hornGeo.rotateX(-Math.PI / 3);
+      hornGeo.rotateX(Math.PI / 3);
       hornGeo.rotateZ(hx > 0 ? 0.3 : -0.3);
       const horn = new THREE.Mesh(hornGeo, hornMat);
-      horn.position.set(hx, 0.35, -0.2);
+      horn.position.set(hx, 0.35, 0.2);
       bullHead.add(horn);
     });
 
     [-0.28, 0.28].forEach(hx => {
       const eyeGeo = new THREE.SphereGeometry(0.08, 12, 12);
       const eye = new THREE.Mesh(eyeGeo, bullEyeMat);
-      eye.position.set(hx, 0.15, -0.4);
+      eye.position.set(hx, 0.15, 0.4);
       bullHead.add(eye);
     });
 
     const bullLegGeo = new THREE.CapsuleGeometry(0.18, 0.7, 12, 12);
     this.bullFrontLeft = new THREE.Mesh(bullLegGeo, bullMat);
-    this.bullFrontLeft.position.set(-0.45, -0.7, -0.7);
+    this.bullFrontLeft.position.set(-0.45, -0.7, 0.7);
     this.bullMesh.add(this.bullFrontLeft);
 
     this.bullFrontRight = new THREE.Mesh(bullLegGeo, bullMat);
-    this.bullFrontRight.position.set(0.45, -0.7, -0.7);
+    this.bullFrontRight.position.set(0.45, -0.7, 0.7);
     this.bullMesh.add(this.bullFrontRight);
 
     this.bullBackLeft = new THREE.Mesh(bullLegGeo, bullMat);
-    this.bullBackLeft.position.set(-0.45, -0.7, 0.7);
+    this.bullBackLeft.position.set(-0.45, -0.7, -0.7);
     this.bullMesh.add(this.bullBackLeft);
 
     this.bullBackRight = new THREE.Mesh(bullLegGeo, bullMat);
-    this.bullBackRight.position.set(0.45, -0.7, 0.7);
+    this.bullBackRight.position.set(0.45, -0.7, -0.7);
     this.bullMesh.add(this.bullBackRight);
 
     this.bullMesh.position.y = 0.6;
@@ -326,7 +326,7 @@ export class Player {
     const chainGeo = new THREE.TorusGeometry(0.24, 0.035, 12, 24);
     chainGeo.rotateX(Math.PI / 3);
     const chain = new THREE.Mesh(chainGeo, chainMat);
-    chain.position.set(0, 0.35, 0.06);
+    chain.position.set(0, 0.35, -0.06);
     this.torsoGroup.add(chain);
 
     // Head
@@ -336,7 +336,7 @@ export class Player {
 
     [-0.11, 0.11].forEach(ex => {
       const socket = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 12), new THREE.MeshBasicMaterial({ color: 0x111111 }));
-      socket.position.set(ex, 0.04, 0.24);
+      socket.position.set(ex, 0.04, -0.24);
       this.headGroup.add(socket);
     });
 
@@ -351,8 +351,8 @@ export class Player {
     this.headGroup.add(beanieBrim);
 
     const patch = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.13, 0.04), eyepatchMat);
-    patch.position.set(-0.11, 0.05, 0.26);
-    patch.rotation.z = 0.15;
+    patch.position.set(0.11, 0.05, -0.26);
+    patch.rotation.z = -0.15;
     this.headGroup.add(patch);
 
     // Left & Right Arms
@@ -383,12 +383,12 @@ export class Player {
       const bootGeo = new THREE.SphereGeometry(0.13, 16, 16);
       bootGeo.scale(1, 0.7, 1.4);
       const boot = new THREE.Mesh(bootGeo, boneMat);
-      boot.position.set(0, -0.75, 0.05);
+      boot.position.set(0, -0.75, -0.05);
       (idx === 0 ? this.leftLeg : this.rightLeg).add(boot);
     });
   }
 
-  // 🐯 ILKERY: 3D WILD MUTANT TIGER RUNNER JOINTS
+  // 🐯 ILKERY: 3D WILD MUTANT TIGER RUNNER JOINTS (Facing Forward down Track!)
   buildIlkerYJoints() {
     const tigerMat = new THREE.MeshStandardMaterial({ color: 0xe868a2, roughness: 0.5 });
     const redSkinMat = new THREE.MeshStandardMaterial({ color: 0xd63031, roughness: 0.4 });
@@ -403,7 +403,7 @@ export class Player {
     const pupilMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
     const tongueMat = new THREE.MeshStandardMaterial({ color: 0xff3399, roughness: 0.3 });
 
-    // Torso (Grey BE KIND REWIND Tee)
+    // Torso (Grey BE KIND REWIND Tee facing forward)
     const torsoGeo = new THREE.CapsuleGeometry(0.32, 0.75, 16, 16);
     const torso = new THREE.Mesh(torsoGeo, shirtMat);
     torso.castShadow = true;
@@ -422,34 +422,35 @@ export class Player {
       this.headGroup.add(ear);
     });
 
+    // Snout and Eyes facing -Z (Forward down track)
     const snout = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), tigerMat);
-    snout.position.set(0, -0.05, 0.22);
+    snout.position.set(0, -0.05, -0.22);
     this.headGroup.add(snout);
 
     const tongueGeo = new THREE.BoxGeometry(0.14, 0.04, 0.25);
     const tongue = new THREE.Mesh(tongueGeo, tongueMat);
-    tongue.position.set(0, -0.12, 0.28);
-    tongue.rotation.x = 0.25;
+    tongue.position.set(0, -0.12, -0.28);
+    tongue.rotation.x = -0.25;
     this.headGroup.add(tongue);
 
     [-0.1, 0, 0.1].forEach((ex, idx) => {
       const eye = new THREE.Mesh(new THREE.SphereGeometry(0.065, 12, 12), eyeMat);
-      eye.position.set(ex, 0.08 + (idx === 1 ? 0.08 : 0), 0.26);
+      eye.position.set(-ex, 0.08 + (idx === 1 ? 0.08 : 0), -0.26);
       this.headGroup.add(eye);
 
       const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 10), pupilMat);
-      pupil.position.set(ex, 0.08 + (idx === 1 ? 0.08 : 0), 0.31);
+      pupil.position.set(-ex, 0.08 + (idx === 1 ? 0.08 : 0), -0.31);
       this.headGroup.add(pupil);
     });
 
     const cap = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.2, 16), capMat);
     cap.position.set(0, 0.52, 0);
-    cap.rotation.z = -0.3;
+    cap.rotation.z = 0.3;
     this.headGroup.add(cap);
 
     const orbMat = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
     const orb = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 12), orbMat);
-    orb.position.set(0.38, 0.45, 0.1);
+    orb.position.set(-0.38, 0.45, -0.1);
     this.headGroup.add(orb);
 
     // Red Arms & Legs
@@ -480,7 +481,7 @@ export class Player {
       const bootGeo = new THREE.SphereGeometry(0.14, 16, 16);
       bootGeo.scale(1, 0.7, 1.4);
       const boot = new THREE.Mesh(bootGeo, bootMat);
-      boot.position.set(0, -0.75, 0.05);
+      boot.position.set(0, -0.75, -0.05);
       (idx === 0 ? this.leftLeg : this.rightLeg).add(boot);
     });
   }
@@ -513,12 +514,12 @@ export class Player {
 
     [-0.08, 0.08].forEach(vx => {
       const vein = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.3, 8), veinMat);
-      vein.position.set(vx, -0.3, 0.1);
+      vein.position.set(vx, -0.3, -0.1);
       this.headGroup.add(vein);
     });
 
     const hair = new THREE.Mesh(new THREE.SphereGeometry(0.3, 20, 20), cyanHairMat);
-    hair.position.set(0, 0.04, -0.02);
+    hair.position.set(0, 0.04, 0.02);
     this.headGroup.add(hair);
 
     const beanieGeo = new THREE.SphereGeometry(0.31, 20, 20, 0, Math.PI * 2, 0, Math.PI * 0.55);
@@ -528,7 +529,7 @@ export class Player {
 
     const visorGeo = new THREE.BoxGeometry(0.42, 0.12, 0.08);
     const visor = new THREE.Mesh(visorGeo, visorMat);
-    visor.position.set(0, 0.04, 0.22);
+    visor.position.set(0, 0.04, -0.22);
     this.headGroup.add(visor);
 
     // Arms
@@ -559,7 +560,7 @@ export class Player {
       const bootGeo = new THREE.SphereGeometry(0.13, 16, 16);
       bootGeo.scale(1, 0.7, 1.4);
       const boot = new THREE.Mesh(bootGeo, sneakerMat);
-      boot.position.set(0, -0.75, 0.05);
+      boot.position.set(0, -0.75, -0.05);
       (idx === 0 ? this.leftLeg : this.rightLeg).add(boot);
     });
   }
@@ -691,38 +692,38 @@ export class Player {
     if (this.isJetpackActive) {
       // 🚀 FORWARD SUPERMAN FLIGHT
       this.bodyGroup.position.y = 1.1;
-      this.bodyGroup.rotation.x = -Math.PI / 2.2;
+      this.bodyGroup.rotation.x = Math.PI / 2.2;
       this.bodyGroup.rotation.y = 0;
-      if (this.headGroup) this.headGroup.rotation.x = -0.3;
-      if (this.leftArm) this.leftArm.rotation.x = Math.PI * 0.85;
-      if (this.rightArm) this.rightArm.rotation.x = Math.PI * 0.85;
-      if (this.leftLeg) this.leftLeg.rotation.x = -0.15;
-      if (this.rightLeg) this.rightLeg.rotation.x = -0.15;
+      if (this.headGroup) this.headGroup.rotation.x = 0.3;
+      if (this.leftArm) this.leftArm.rotation.x = -Math.PI * 0.85;
+      if (this.rightArm) this.rightArm.rotation.x = -Math.PI * 0.85;
+      if (this.leftLeg) this.leftLeg.rotation.x = 0.15;
+      if (this.rightLeg) this.rightLeg.rotation.x = 0.15;
     } else if (this.hasHoverboard) {
       // 🛹 SKATEBOARD GLIDING STANCE (Wide knees, no leg running!)
       this.bodyGroup.position.y = 0.95;
-      this.bodyGroup.rotation.x = 0.05;
-      this.bodyGroup.rotation.y = 0.35;
+      this.bodyGroup.rotation.x = -0.05;
+      this.bodyGroup.rotation.y = -0.35;
       if (this.headGroup) {
-        this.headGroup.rotation.y = -0.35;
+        this.headGroup.rotation.y = 0.35;
         this.headGroup.rotation.x = 0;
       }
-      if (this.leftLeg) this.leftLeg.rotation.x = 0.25;
-      if (this.rightLeg) this.rightLeg.rotation.x = -0.25;
-      if (this.leftArm) this.leftArm.rotation.x = -0.3;
-      if (this.rightArm) this.rightArm.rotation.x = 0.3;
+      if (this.leftLeg) this.leftLeg.rotation.x = -0.25;
+      if (this.rightLeg) this.rightLeg.rotation.x = 0.25;
+      if (this.leftArm) this.leftArm.rotation.x = 0.3;
+      if (this.rightArm) this.rightArm.rotation.x = -0.3;
     } else if (this.isRidingBull) {
       this.bodyGroup.position.y = 1.6;
-      this.bodyGroup.rotation.x = 0.2;
+      this.bodyGroup.rotation.x = -0.2;
       this.bodyGroup.rotation.y = 0;
       if (this.headGroup) {
         this.headGroup.rotation.y = 0;
         this.headGroup.rotation.x = 0;
       }
-      if (this.leftLeg) this.leftLeg.rotation.x = -Math.PI / 3;
-      if (this.rightLeg) this.rightLeg.rotation.x = -Math.PI / 3;
-      if (this.leftArm) this.leftArm.rotation.x = -Math.PI / 4;
-      if (this.rightArm) this.rightArm.rotation.x = -Math.PI / 4;
+      if (this.leftLeg) this.leftLeg.rotation.x = Math.PI / 3;
+      if (this.rightLeg) this.rightLeg.rotation.x = Math.PI / 3;
+      if (this.leftArm) this.leftArm.rotation.x = Math.PI / 4;
+      if (this.rightArm) this.rightArm.rotation.x = Math.PI / 4;
 
       const bullAngle = Math.sin(this.animTime * 1.5) * 0.6;
       if (this.bullFrontLeft) {
@@ -733,14 +734,14 @@ export class Player {
       }
     } else if (this.isSliding) {
       this.bodyGroup.position.y = 0.5;
-      this.bodyGroup.rotation.x = -Math.PI / 4;
+      this.bodyGroup.rotation.x = Math.PI / 4;
       this.bodyGroup.rotation.y = 0;
       if (this.headGroup) {
         this.headGroup.rotation.y = 0;
         this.headGroup.rotation.x = 0;
       }
-      if (this.leftLeg) this.leftLeg.rotation.x = -Math.PI / 3;
-      if (this.rightLeg) this.rightLeg.rotation.x = -Math.PI / 3;
+      if (this.leftLeg) this.leftLeg.rotation.x = Math.PI / 3;
+      if (this.rightLeg) this.rightLeg.rotation.x = Math.PI / 3;
     } else if (!this.isGrounded) {
       this.bodyGroup.position.y = 1.1;
       this.bodyGroup.rotation.x = 0;
@@ -749,26 +750,26 @@ export class Player {
         this.headGroup.rotation.y = 0;
         this.headGroup.rotation.x = 0;
       }
-      if (this.leftLeg) this.leftLeg.rotation.x = -Math.PI / 4;
-      if (this.rightLeg) this.rightLeg.rotation.x = Math.PI / 6;
+      if (this.leftLeg) this.leftLeg.rotation.x = Math.PI / 4;
+      if (this.rightLeg) this.rightLeg.rotation.x = -Math.PI / 6;
     } else {
       // 🏃 REAL 3D ARM & LEG STRIDE RUNNING ANIMATION
       this.bodyGroup.position.y = 1.1 + Math.abs(Math.sin(this.animTime * 2.8)) * 0.18;
-      this.bodyGroup.rotation.x = 0.08;
-      this.bodyGroup.rotation.y = Math.cos(this.animTime * 2.8) * 0.12;
+      this.bodyGroup.rotation.x = -0.08;
+      this.bodyGroup.rotation.y = -Math.cos(this.animTime * 2.8) * 0.12;
 
       // Leg Striding & Knee Flexing
       const legStride = Math.sin(this.animTime * 2.8) * 0.88;
-      if (this.leftLeg) this.leftLeg.rotation.x = legStride;
-      if (this.rightLeg) this.rightLeg.rotation.x = -legStride;
+      if (this.leftLeg) this.leftLeg.rotation.x = -legStride;
+      if (this.rightLeg) this.rightLeg.rotation.x = legStride;
 
       // Arms Swing Opposite to Legs!
       const armSwing = -Math.sin(this.animTime * 2.8) * 0.88;
-      if (this.leftArm) this.leftArm.rotation.x = armSwing;
-      if (this.rightArm) this.rightArm.rotation.x = -armSwing;
+      if (this.leftArm) this.leftArm.rotation.x = -armSwing;
+      if (this.rightArm) this.rightArm.rotation.x = armSwing;
 
       if (this.headGroup) {
-        this.headGroup.rotation.y = -Math.cos(this.animTime * 2.8) * 0.08;
+        this.headGroup.rotation.y = Math.cos(this.animTime * 2.8) * 0.08;
       }
     }
 

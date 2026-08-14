@@ -7,31 +7,26 @@ export const CHARACTERS = {
     icon: '💀',
     defaultColor: '#7ca84d',
     secondaryColor: '#3a3d45',
-    desc: 'Cybernetic skull runner with beanie, red X eyepatch, silver chain & wire spine.'
+    desc: 'Cybernetic skull runner with beanie, red X eyepatch, silver chain & wire spine.',
+    texturePath: '/czar_character.jpg'
   },
-  NINJA: {
-    id: 'ninja',
-    name: 'NEON SHADOW',
-    icon: '🥷',
-    defaultColor: '#00f3ff',
-    secondaryColor: '#11162b',
-    desc: 'Cybernetic shadow runner with glowing energy blade & thruster boots.'
+  ILKERY: {
+    id: 'ilkery',
+    name: 'ILKERY',
+    icon: '🐯',
+    defaultColor: '#e868a2',
+    secondaryColor: '#d63031',
+    desc: 'Wild 3-eyed mutant tiger runner with BE KIND REWIND shirt & floating cap.',
+    texturePath: '/ilkery_render.jpg'
   },
-  MECH: {
-    id: 'mech',
-    name: 'ASTRO MECH',
-    icon: '🤖',
-    defaultColor: '#ff0055',
-    secondaryColor: '#1f2430',
-    desc: 'Heavy robotic exo-suit with high-thruster boots.'
-  },
-  SYNTH: {
-    id: 'synth',
-    name: 'SYNTH RIDER',
-    icon: '🕶️',
-    defaultColor: '#b000ff',
-    secondaryColor: '#1a0933',
-    desc: 'Retro synthwave runner with glowing hover shades.'
+  MODEX: {
+    id: 'modex',
+    name: 'MODEX',
+    icon: '⚡',
+    defaultColor: '#70d6ff',
+    secondaryColor: '#9b5de5',
+    desc: 'Anime cyber runner with cyan hair, yellow visor & glowing purple neck veins.',
+    texturePath: '/modex_render.jpg'
   }
 };
 
@@ -44,14 +39,14 @@ export class Player {
     this.currentCharacter = CHARACTERS.SKELETON;
     this.accentColor = CHARACTERS.SKELETON.defaultColor;
 
+    this.textures = {};
     this.customCharTexture = null;
     this.customCoinTexture = null;
 
     const loader = new THREE.TextureLoader();
-    loader.load('/czar_character.jpg', (tex) => {
-      this.customCharTexture = tex;
-      this.buildCharacterMesh();
-    }, undefined, () => {});
+    loader.load('/czar_character.jpg', (t) => { this.textures.skeleton = t; if (this.currentCharacter.id === 'skeleton') this.buildCharacterMesh(); });
+    loader.load('/ilkery_render.jpg', (t) => { this.textures.ilkery = t; if (this.currentCharacter.id === 'ilkery') this.buildCharacterMesh(); });
+    loader.load('/modex_render.jpg', (t) => { this.textures.modex = t; if (this.currentCharacter.id === 'modex') this.buildCharacterMesh(); });
 
     this.lanes = [-3.2, 0, 3.2];
     this.currentLane = 1;
@@ -106,116 +101,15 @@ export class Player {
       this.mesh.remove(this.mesh.children[0]);
     }
 
-    const boneMat = new THREE.MeshStandardMaterial({
-      color: 0xe0e0d0,
-      roughness: 0.4,
-      metalness: 0.2
-    });
+    const charId = this.currentCharacter.id;
 
-    const jacketMat = new THREE.MeshStandardMaterial({
-      color: 0x42464e,
-      roughness: 0.4,
-      metalness: 0.3
-    });
-
-    if (this.customCharTexture) {
-      jacketMat.map = this.customCharTexture;
-      jacketMat.needsUpdate = true;
+    if (charId === 'ilkery') {
+      this.buildIlkerYMesh();
+    } else if (charId === 'modex') {
+      this.buildModeXMesh();
+    } else {
+      this.buildCzarMesh();
     }
-
-    const beanieMat = new THREE.MeshStandardMaterial({
-      color: 0x8b4513,
-      roughness: 0.9,
-      metalness: 0.05
-    });
-
-    const eyepatchMat = new THREE.MeshStandardMaterial({
-      color: 0xcc1100,
-      roughness: 0.3
-    });
-
-    const chainMat = new THREE.MeshStandardMaterial({
-      color: 0xe8e8e8,
-      metalness: 0.95,
-      roughness: 0.1
-    });
-
-    const wireColors = [0xff0000, 0x00f3ff, 0x00ff66, 0xffff00];
-
-    this.bodyGroup = new THREE.Group();
-    this.bodyGroup.position.y = 1.1;
-    this.mesh.add(this.bodyGroup);
-
-    // 1. 💀 TORSO & WIRE SPINE
-    const spineGeo = new THREE.CylinderGeometry(0.08, 0.1, 0.85, 16);
-    const spine = new THREE.Mesh(spineGeo, boneMat);
-    spine.position.y = 0.1;
-    spine.castShadow = true;
-    this.bodyGroup.add(spine);
-
-    wireColors.forEach((color, idx) => {
-      const wireGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.88, 8);
-      const wireMat = new THREE.MeshBasicMaterial({ color: color });
-      const wire = new THREE.Mesh(wireGeo, wireMat);
-      const angle = (idx / wireColors.length) * Math.PI * 2;
-      wire.position.set(Math.cos(angle) * 0.05, 0.1, Math.sin(angle) * 0.05);
-      this.bodyGroup.add(wire);
-    });
-
-    [-0.28, 0.28].forEach((jx, idx) => {
-      const flapGeo = new THREE.CapsuleGeometry(0.12, 0.75, 12, 12);
-      const flap = new THREE.Mesh(flapGeo, jacketMat);
-      flap.position.set(jx, 0.1, 0);
-      flap.rotation.y = idx === 0 ? 0.25 : -0.25;
-      flap.castShadow = true;
-      this.bodyGroup.add(flap);
-    });
-
-    const chainGeo = new THREE.TorusGeometry(0.24, 0.035, 12, 24);
-    chainGeo.rotateX(Math.PI / 3);
-    const chain = new THREE.Mesh(chainGeo, chainMat);
-    chain.position.set(0, 0.45, 0.06);
-    this.bodyGroup.add(chain);
-
-    // 2. 💀 SKULL HEAD & BEANIE & EYEPATCH
-    const skullHeadGeo = new THREE.SphereGeometry(0.3, 24, 24);
-    this.head = new THREE.Mesh(skullHeadGeo, boneMat);
-    this.head.position.y = 0.82;
-    this.head.castShadow = true;
-    this.bodyGroup.add(this.head);
-
-    [-0.11, 0.11].forEach(ex => {
-      const socketGeo = new THREE.SphereGeometry(0.07, 12, 12);
-      const socketMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
-      const socket = new THREE.Mesh(socketGeo, socketMat);
-      socket.position.set(ex, 0.04, 0.24);
-      this.head.add(socket);
-    });
-
-    const beanieDomeGeo = new THREE.SphereGeometry(0.32, 20, 20, 0, Math.PI * 2, 0, Math.PI * 0.6);
-    const beanieDome = new THREE.Mesh(beanieDomeGeo, beanieMat);
-    beanieDome.position.y = 0.08;
-    this.head.add(beanieDome);
-
-    const beanieBrimGeo = new THREE.TorusGeometry(0.31, 0.06, 12, 24);
-    beanieBrimGeo.rotateX(Math.PI / 2);
-    const beanieBrim = new THREE.Mesh(beanieBrimGeo, beanieMat);
-    beanieBrim.position.y = 0.08;
-    this.head.add(beanieBrim);
-
-    const patchGeo = new THREE.BoxGeometry(0.13, 0.13, 0.04);
-    const patch = new THREE.Mesh(patchGeo, eyepatchMat);
-    patch.position.set(-0.11, 0.05, 0.26);
-    patch.rotation.z = 0.15;
-    this.head.add(patch);
-
-    const crossMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    [-0.04, 0.04].forEach(rot => {
-      const lineGeo = new THREE.BoxGeometry(0.11, 0.025, 0.05);
-      const line = new THREE.Mesh(lineGeo, crossMat);
-      line.rotation.z = rot > 0 ? Math.PI / 4 : -Math.PI / 4;
-      patch.add(line);
-    });
 
     // 🚀 3D BACK-ATTACHED ROCKET JETPACK MESH
     this.jetpackMesh = new THREE.Group();
@@ -239,51 +133,6 @@ export class Player {
     this.jetpackMesh.position.set(0, 0.2, -0.28);
     this.jetpackMesh.visible = false;
     this.bodyGroup.add(this.jetpackMesh);
-
-    // 3. LIMBS
-    const armGeo = new THREE.CapsuleGeometry(0.08, 0.65, 12, 12);
-
-    this.leftArm = new THREE.Group();
-    this.leftArm.position.set(-0.45, 0.42, 0);
-    const lArmMesh = new THREE.Mesh(armGeo, jacketMat);
-    lArmMesh.position.y = -0.32;
-    lArmMesh.castShadow = true;
-    this.leftArm.add(lArmMesh);
-    this.bodyGroup.add(this.leftArm);
-
-    this.rightArm = new THREE.Group();
-    this.rightArm.position.set(0.45, 0.42, 0);
-    const rArmMesh = new THREE.Mesh(armGeo, jacketMat);
-    rArmMesh.position.y = -0.32;
-    rArmMesh.castShadow = true;
-    this.rightArm.add(rArmMesh);
-    this.bodyGroup.add(this.rightArm);
-
-    const legGeo = new THREE.CapsuleGeometry(0.09, 0.75, 12, 12);
-
-    this.leftLeg = new THREE.Group();
-    this.leftLeg.position.set(-0.2, -0.42, 0);
-    const lLegMesh = new THREE.Mesh(legGeo, jacketMat);
-    lLegMesh.position.y = -0.4;
-    lLegMesh.castShadow = true;
-    this.leftLeg.add(lLegMesh);
-    this.bodyGroup.add(this.leftLeg);
-
-    this.rightLeg = new THREE.Group();
-    this.rightLeg.position.set(0.2, -0.42, 0);
-    const rLegMesh = new THREE.Mesh(legGeo, jacketMat);
-    rLegMesh.position.y = -0.4;
-    rLegMesh.castShadow = true;
-    this.rightLeg.add(rLegMesh);
-    this.bodyGroup.add(this.rightLeg);
-
-    [-0.2, 0.2].forEach((x, idx) => {
-      const bootGeo = new THREE.SphereGeometry(0.13, 16, 16);
-      bootGeo.scale(1, 0.7, 1.4);
-      const boot = new THREE.Mesh(bootGeo, boneMat);
-      boot.position.set(0, -0.75, 0.05);
-      (idx === 0 ? this.leftLeg : this.rightLeg).add(boot);
-    });
 
     // 🐂 RAGING BULL MESH
     this.bullMesh = new THREE.Group();
@@ -408,6 +257,317 @@ export class Player {
     this.shieldMesh.position.y = 0.2;
     this.shieldMesh.visible = false;
     this.bodyGroup.add(this.shieldMesh);
+  }
+
+  buildCzarMesh() {
+    const boneMat = new THREE.MeshStandardMaterial({ color: 0xe0e0d0, roughness: 0.4, metalness: 0.2 });
+    const jacketMat = new THREE.MeshStandardMaterial({ color: 0x42464e, roughness: 0.4, metalness: 0.3 });
+    if (this.customCharTexture || this.textures.skeleton) {
+      jacketMat.map = this.customCharTexture || this.textures.skeleton;
+      jacketMat.needsUpdate = true;
+    }
+
+    const beanieMat = new THREE.MeshStandardMaterial({ color: 0x8b4513, roughness: 0.9 });
+    const eyepatchMat = new THREE.MeshStandardMaterial({ color: 0xcc1100, roughness: 0.3 });
+    const chainMat = new THREE.MeshStandardMaterial({ color: 0xe8e8e8, metalness: 0.95, roughness: 0.1 });
+    const wireColors = [0xff0000, 0x00f3ff, 0x00ff66, 0xffff00];
+
+    this.bodyGroup = new THREE.Group();
+    this.bodyGroup.position.y = 1.1;
+    this.mesh.add(this.bodyGroup);
+
+    const spine = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.85, 16), boneMat);
+    spine.position.y = 0.1;
+    this.bodyGroup.add(spine);
+
+    wireColors.forEach((color, idx) => {
+      const wire = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.88, 8), new THREE.MeshBasicMaterial({ color }));
+      const angle = (idx / wireColors.length) * Math.PI * 2;
+      wire.position.set(Math.cos(angle) * 0.05, 0.1, Math.sin(angle) * 0.05);
+      this.bodyGroup.add(wire);
+    });
+
+    [-0.28, 0.28].forEach((jx, idx) => {
+      const flap = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.75, 12, 12), jacketMat);
+      flap.position.set(jx, 0.1, 0);
+      flap.rotation.y = idx === 0 ? 0.25 : -0.25;
+      this.bodyGroup.add(flap);
+    });
+
+    const chainGeo = new THREE.TorusGeometry(0.24, 0.035, 12, 24);
+    chainGeo.rotateX(Math.PI / 3);
+    const chain = new THREE.Mesh(chainGeo, chainMat);
+    chain.position.set(0, 0.45, 0.06);
+    this.bodyGroup.add(chain);
+
+    this.head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 24, 24), boneMat);
+    this.head.position.y = 0.82;
+    this.bodyGroup.add(this.head);
+
+    [-0.11, 0.11].forEach(ex => {
+      const socket = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 12), new THREE.MeshBasicMaterial({ color: 0x111111 }));
+      socket.position.set(ex, 0.04, 0.24);
+      this.head.add(socket);
+    });
+
+    const beanieDome = new THREE.Mesh(new THREE.SphereGeometry(0.32, 20, 20, 0, Math.PI * 2, 0, Math.PI * 0.6), beanieMat);
+    beanieDome.position.y = 0.08;
+    this.head.add(beanieDome);
+
+    const beanieBrimGeo = new THREE.TorusGeometry(0.31, 0.06, 12, 24);
+    beanieBrimGeo.rotateX(Math.PI / 2);
+    const beanieBrim = new THREE.Mesh(beanieBrimGeo, beanieMat);
+    beanieBrim.position.y = 0.08;
+    this.head.add(beanieBrim);
+
+    const patch = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.13, 0.04), eyepatchMat);
+    patch.position.set(-0.11, 0.05, 0.26);
+    patch.rotation.z = 0.15;
+    this.head.add(patch);
+
+    const crossMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    [-0.04, 0.04].forEach(rot => {
+      const line = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.025, 0.05), crossMat);
+      line.rotation.z = rot > 0 ? Math.PI / 4 : -Math.PI / 4;
+      patch.add(line);
+    });
+
+    const armGeo = new THREE.CapsuleGeometry(0.08, 0.65, 12, 12);
+    this.leftArm = new THREE.Group();
+    this.leftArm.position.set(-0.45, 0.42, 0);
+    const lArmMesh = new THREE.Mesh(armGeo, jacketMat);
+    lArmMesh.position.y = -0.32;
+    this.leftArm.add(lArmMesh);
+    this.bodyGroup.add(this.leftArm);
+
+    this.rightArm = new THREE.Group();
+    this.rightArm.position.set(0.45, 0.42, 0);
+    const rArmMesh = new THREE.Mesh(armGeo, jacketMat);
+    rArmMesh.position.y = -0.32;
+    this.rightArm.add(rArmMesh);
+    this.bodyGroup.add(this.rightArm);
+
+    const legGeo = new THREE.CapsuleGeometry(0.09, 0.75, 12, 12);
+    this.leftLeg = new THREE.Group();
+    this.leftLeg.position.set(-0.2, -0.42, 0);
+    const lLegMesh = new THREE.Mesh(legGeo, jacketMat);
+    lLegMesh.position.y = -0.4;
+    this.leftLeg.add(lLegMesh);
+    this.bodyGroup.add(this.leftLeg);
+
+    this.rightLeg = new THREE.Group();
+    this.rightLeg.position.set(0.2, -0.42, 0);
+    const rLegMesh = new THREE.Mesh(legGeo, jacketMat);
+    rLegMesh.position.y = -0.4;
+    this.rightLeg.add(rLegMesh);
+    this.bodyGroup.add(this.rightLeg);
+
+    [-0.2, 0.2].forEach((x, idx) => {
+      const bootGeo = new THREE.SphereGeometry(0.13, 16, 16);
+      bootGeo.scale(1, 0.7, 1.4);
+      const boot = new THREE.Mesh(bootGeo, boneMat);
+      boot.position.set(0, -0.75, 0.05);
+      (idx === 0 ? this.leftLeg : this.rightLeg).add(boot);
+    });
+  }
+
+  // 🐯 ILKERY: WILD 3-EYED MUTANT TIGER RUNNER
+  buildIlkerYMesh() {
+    const tigerMat = new THREE.MeshStandardMaterial({ color: 0xe868a2, roughness: 0.5 });
+    const redSkinMat = new THREE.MeshStandardMaterial({ color: 0xd63031, roughness: 0.4 });
+    const shirtMat = new THREE.MeshStandardMaterial({ color: 0x4a4e5a, roughness: 0.6 });
+    if (this.textures.ilkery) {
+      shirtMat.map = this.textures.ilkery;
+      shirtMat.needsUpdate = true;
+    }
+
+    const capMat = new THREE.MeshStandardMaterial({ color: 0xff6600, roughness: 0.4 });
+    const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const pupilMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
+    const tongueMat = new THREE.MeshStandardMaterial({ color: 0xff3399, roughness: 0.3 });
+
+    this.bodyGroup = new THREE.Group();
+    this.bodyGroup.position.y = 1.1;
+    this.mesh.add(this.bodyGroup);
+
+    // Torso (Grey BE KIND REWIND Tee)
+    const torsoGeo = new THREE.CapsuleGeometry(0.32, 0.75, 16, 16);
+    const torso = new THREE.Mesh(torsoGeo, shirtMat);
+    torso.position.y = 0.1;
+    this.bodyGroup.add(torso);
+
+    // Tiger Head
+    this.head = new THREE.Mesh(new THREE.SphereGeometry(0.34, 24, 24), tigerMat);
+    this.head.position.y = 0.85;
+    this.bodyGroup.add(this.head);
+
+    // Tiger Snout & Roaring Mouth
+    const snout = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), tigerMat);
+    snout.position.set(0, -0.05, 0.22);
+    this.head.add(snout);
+
+    const tongueGeo = new THREE.BoxGeometry(0.14, 0.04, 0.25);
+    const tongue = new THREE.Mesh(tongueGeo, tongueMat);
+    tongue.position.set(0, -0.12, 0.28);
+    tongue.rotation.x = 0.25;
+    this.head.add(tongue);
+
+    // 3 Vertical Eyes on Forehead
+    [-0.1, 0, 0.1].forEach((ex, idx) => {
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.065, 12, 12), eyeMat);
+      eye.position.set(ex, 0.08 + (idx === 1 ? 0.08 : 0), 0.26);
+      this.head.add(eye);
+
+      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 10), pupilMat);
+      pupil.position.set(ex, 0.08 + (idx === 1 ? 0.08 : 0), 0.31);
+      this.head.add(pupil);
+    });
+
+    // Floating Cap
+    const cap = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.2, 16), capMat);
+    cap.position.set(0, 0.52, 0);
+    cap.rotation.z = -0.3;
+    this.head.add(cap);
+
+    // Floating Smiley Orb
+    const orbMat = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
+    const orb = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 12), orbMat);
+    orb.position.set(0.38, 0.45, 0.1);
+    this.head.add(orb);
+
+    // Red Arms & Legs
+    const armGeo = new THREE.CapsuleGeometry(0.09, 0.65, 12, 12);
+    this.leftArm = new THREE.Group();
+    this.leftArm.position.set(-0.45, 0.42, 0);
+    const lArmMesh = new THREE.Mesh(armGeo, redSkinMat);
+    lArmMesh.position.y = -0.32;
+    this.leftArm.add(lArmMesh);
+    this.bodyGroup.add(this.leftArm);
+
+    this.rightArm = new THREE.Group();
+    this.rightArm.position.set(0.45, 0.42, 0);
+    const rArmMesh = new THREE.Mesh(armGeo, redSkinMat);
+    rArmMesh.position.y = -0.32;
+    this.rightArm.add(rArmMesh);
+    this.bodyGroup.add(this.rightArm);
+
+    const legGeo = new THREE.CapsuleGeometry(0.1, 0.75, 12, 12);
+    this.leftLeg = new THREE.Group();
+    this.leftLeg.position.set(-0.2, -0.42, 0);
+    const lLegMesh = new THREE.Mesh(legGeo, redSkinMat);
+    lLegMesh.position.y = -0.4;
+    this.leftLeg.add(lLegMesh);
+    this.bodyGroup.add(this.leftLeg);
+
+    this.rightLeg = new THREE.Group();
+    this.rightLeg.position.set(0.2, -0.42, 0);
+    const rLegMesh = new THREE.Mesh(legGeo, redSkinMat);
+    rLegMesh.position.y = -0.4;
+    this.rightLeg.add(rLegMesh);
+    this.bodyGroup.add(this.rightLeg);
+
+    const bootMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.3 });
+    [-0.2, 0.2].forEach((x, idx) => {
+      const bootGeo = new THREE.SphereGeometry(0.14, 16, 16);
+      bootGeo.scale(1, 0.7, 1.4);
+      const boot = new THREE.Mesh(bootGeo, bootMat);
+      boot.position.set(0, -0.75, 0.05);
+      (idx === 0 ? this.leftLeg : this.rightLeg).add(boot);
+    });
+  }
+
+  // ⚡ MODEX: ANIME CYBER FEATHER RUNNER
+  buildModeXMesh() {
+    const skinMat = new THREE.MeshStandardMaterial({ color: 0x8d5b4c, roughness: 0.6 });
+    const cyanHairMat = new THREE.MeshStandardMaterial({ color: 0x70d6ff, roughness: 0.3 });
+    const beanieMat = new THREE.MeshStandardMaterial({ color: 0x8b4513, roughness: 0.8 });
+    const visorMat = new THREE.MeshBasicMaterial({ color: 0xffd166, transparent: true, opacity: 0.85 });
+    const veinMat = new THREE.MeshBasicMaterial({ color: 0x9b5de5 });
+    const shirtMat = new THREE.MeshStandardMaterial({ color: 0xf8f9fa, roughness: 0.4 });
+    if (this.textures.modex) {
+      shirtMat.map = this.textures.modex;
+      shirtMat.needsUpdate = true;
+    }
+    const pantsMat = new THREE.MeshStandardMaterial({ color: 0x2b2d42, roughness: 0.5 });
+    const sneakerMat = new THREE.MeshStandardMaterial({ color: 0xffd166, roughness: 0.3 });
+
+    this.bodyGroup = new THREE.Group();
+    this.bodyGroup.position.y = 1.1;
+    this.mesh.add(this.bodyGroup);
+
+    // Torso (White T-shirt with Robinhood Disco Feather emblem)
+    const torsoGeo = new THREE.CapsuleGeometry(0.3, 0.75, 16, 16);
+    const torso = new THREE.Mesh(torsoGeo, shirtMat);
+    torso.position.y = 0.1;
+    this.bodyGroup.add(torso);
+
+    // Head
+    this.head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 24, 24), skinMat);
+    this.head.position.y = 0.82;
+    this.bodyGroup.add(this.head);
+
+    // Glowing Purple Neck Veins
+    [-0.08, 0.08].forEach(vx => {
+      const vein = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.3, 8), veinMat);
+      vein.position.set(vx, 0.52, 0.1);
+      this.bodyGroup.add(vein);
+    });
+
+    // Cyan Hair & Beanie
+    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.3, 20, 20), cyanHairMat);
+    hair.position.set(0, 0.04, -0.02);
+    this.head.add(hair);
+
+    const beanieGeo = new THREE.SphereGeometry(0.31, 20, 20, 0, Math.PI * 2, 0, Math.PI * 0.55);
+    const beanie = new THREE.Mesh(beanieGeo, beanieMat);
+    beanie.position.y = 0.08;
+    this.head.add(beanie);
+
+    // Yellow Cyber Visor
+    const visorGeo = new THREE.BoxGeometry(0.42, 0.12, 0.08);
+    const visor = new THREE.Mesh(visorGeo, visorMat);
+    visor.position.set(0, 0.04, 0.22);
+    this.head.add(visor);
+
+    // Arms (Skin + White Sleeves)
+    const armGeo = new THREE.CapsuleGeometry(0.085, 0.65, 12, 12);
+    this.leftArm = new THREE.Group();
+    this.leftArm.position.set(-0.42, 0.42, 0);
+    const lArmMesh = new THREE.Mesh(armGeo, skinMat);
+    lArmMesh.position.y = -0.32;
+    this.leftArm.add(lArmMesh);
+    this.bodyGroup.add(this.leftArm);
+
+    this.rightArm = new THREE.Group();
+    this.rightArm.position.set(0.42, 0.42, 0);
+    const rArmMesh = new THREE.Mesh(armGeo, skinMat);
+    rArmMesh.position.y = -0.32;
+    this.rightArm.add(rArmMesh);
+    this.bodyGroup.add(this.rightArm);
+
+    // Cargo Pants & High-top Sneakers
+    const legGeo = new THREE.CapsuleGeometry(0.095, 0.75, 12, 12);
+    this.leftLeg = new THREE.Group();
+    this.leftLeg.position.set(-0.2, -0.42, 0);
+    const lLegMesh = new THREE.Mesh(legGeo, pantsMat);
+    lLegMesh.position.y = -0.4;
+    this.leftLeg.add(lLegMesh);
+    this.bodyGroup.add(this.leftLeg);
+
+    this.rightLeg = new THREE.Group();
+    this.rightLeg.position.set(0.2, -0.42, 0);
+    const rLegMesh = new THREE.Mesh(legGeo, pantsMat);
+    rLegMesh.position.y = -0.4;
+    this.rightLeg.add(rLegMesh);
+    this.bodyGroup.add(this.rightLeg);
+
+    [-0.2, 0.2].forEach((x, idx) => {
+      const bootGeo = new THREE.SphereGeometry(0.13, 16, 16);
+      bootGeo.scale(1, 0.7, 1.4);
+      const boot = new THREE.Mesh(bootGeo, sneakerMat);
+      boot.position.set(0, -0.75, 0.05);
+      (idx === 0 ? this.leftLeg : this.rightLeg).add(boot);
+    });
   }
 
   moveLeft() {
@@ -538,7 +698,10 @@ export class Player {
       this.bodyGroup.position.y = 1.1;
       this.bodyGroup.rotation.x = -Math.PI / 2.2;
       this.bodyGroup.rotation.y = 0;
-      this.head.rotation.x = -0.3; // Head tilted forward facing ahead!
+      if (this.head) {
+        this.head.rotation.x = -0.3;
+        this.head.rotation.y = 0;
+      }
       this.leftArm.rotation.x = Math.PI * 0.85;
       this.rightArm.rotation.x = Math.PI * 0.85;
       this.leftLeg.rotation.x = -0.15;
@@ -547,9 +710,11 @@ export class Player {
       // 🛹 SKATEBOARD GLIDING STANCE (Wide stable knees, surfboard body angle, NO leg running!)
       this.bodyGroup.position.y = 0.95;
       this.bodyGroup.rotation.x = 0.05;
-      this.bodyGroup.rotation.y = 0.35; // Surfing sideways stance on the board!
-      this.head.rotation.y = -0.35; // Head turned straight forward facing ahead!
-      this.head.rotation.x = 0;
+      this.bodyGroup.rotation.y = 0.35;
+      if (this.head) {
+        this.head.rotation.y = -0.35;
+        this.head.rotation.x = 0;
+      }
       this.leftLeg.rotation.x = 0.25;
       this.rightLeg.rotation.x = -0.25;
       this.leftArm.rotation.x = -0.3;
@@ -558,8 +723,10 @@ export class Player {
       this.bodyGroup.position.y = 1.6;
       this.bodyGroup.rotation.x = 0.2;
       this.bodyGroup.rotation.y = 0;
-      this.head.rotation.y = 0;
-      this.head.rotation.x = 0;
+      if (this.head) {
+        this.head.rotation.y = 0;
+        this.head.rotation.x = 0;
+      }
       this.leftLeg.rotation.x = -Math.PI / 3;
       this.rightLeg.rotation.x = -Math.PI / 3;
       this.leftArm.rotation.x = -Math.PI / 4;
@@ -576,16 +743,20 @@ export class Player {
       this.bodyGroup.position.y = 0.5;
       this.bodyGroup.rotation.x = -Math.PI / 4;
       this.bodyGroup.rotation.y = 0;
-      this.head.rotation.y = 0;
-      this.head.rotation.x = 0;
+      if (this.head) {
+        this.head.rotation.y = 0;
+        this.head.rotation.x = 0;
+      }
       this.leftLeg.rotation.x = -Math.PI / 3;
       this.rightLeg.rotation.x = -Math.PI / 3;
     } else if (!this.isGrounded) {
       this.bodyGroup.position.y = 1.1;
       this.bodyGroup.rotation.x = 0;
       this.bodyGroup.rotation.y = 0;
-      this.head.rotation.y = 0;
-      this.head.rotation.x = 0;
+      if (this.head) {
+        this.head.rotation.y = 0;
+        this.head.rotation.x = 0;
+      }
       this.leftLeg.rotation.x = -Math.PI / 4;
       this.rightLeg.rotation.x = Math.PI / 6;
     } else {
@@ -593,8 +764,10 @@ export class Player {
       this.bodyGroup.position.y = 1.1;
       this.bodyGroup.rotation.x = 0.08;
       this.bodyGroup.rotation.y = 0;
-      this.head.rotation.y = 0;
-      this.head.rotation.x = 0;
+      if (this.head) {
+        this.head.rotation.y = 0;
+        this.head.rotation.x = 0;
+      }
       const armAngle = Math.sin(this.animTime) * 0.8;
       const legAngle = Math.sin(this.animTime) * 1.0;
 

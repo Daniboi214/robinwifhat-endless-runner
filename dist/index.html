@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   
-  <script type="module" crossorigin src="/assets/index--S3laUWH.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-BklHsEd9.css">
+  <script type="module" crossorigin src="/assets/index-CMpZXHQ3.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-B2WakMQy.css">
 </head>
 <body>
   <div id="canvas-container"></div>
@@ -28,7 +28,7 @@
         <p class="subtitle">ENDLESS RUNNER GAME</p>
       </div>
 
-      <!-- Hero Character & Crest Showcase -->
+      <!-- Hero Character & Crest Showcase Row -->
       <div class="hero-showcase-row">
         <!-- Hero Card 1: CZAR -->
         <div class="hero-card hero-czar">
@@ -40,24 +40,37 @@
             <h3 class="hero-name">CZAR</h3>
             <div class="hero-stats">
               <span>SPEED: ★★★★★</span>
-              <span>AGILITY: ★★★★★</span>
               <span>STYLE: MAX</span>
             </div>
           </div>
         </div>
 
-        <!-- Hero Card 2: ROBINWIFHAT CREST -->
-        <div class="hero-card hero-badge">
+        <!-- Hero Card 2: ILKERY -->
+        <div class="hero-card hero-ilkery">
           <div class="hero-avatar-wrapper">
-            <img src="/robin_wif_hat_badge.jpg" alt="RobinWifHat Feather Emblem" class="hero-avatar-img" />
+            <img src="/ilkery_render.jpg" alt="IlkerY - Wild 3-Eyed Tiger Runner" class="hero-avatar-img" />
           </div>
           <div class="hero-info">
-            <span class="hero-tag">OFFICIAL CREST</span>
-            <h3 class="hero-name">ROBINWIFHAT</h3>
+            <span class="hero-tag">NEW HERO</span>
+            <h3 class="hero-name">ILKERY</h3>
             <div class="hero-stats">
-              <span>COIN MULTIPLIER: 2X</span>
-              <span>DISCO VIBE: 100%</span>
-              <span>COMMUNITY: 🔥</span>
+              <span>WILD POWER: ★★★★★</span>
+              <span>BE KIND REWIND</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Card 3: MODEX -->
+        <div class="hero-card hero-modex">
+          <div class="hero-avatar-wrapper">
+            <img src="/modex_render.jpg" alt="ModeX - Anime Cyber Feather Runner" class="hero-avatar-img" />
+          </div>
+          <div class="hero-info">
+            <span class="hero-tag">NEW HERO</span>
+            <h3 class="hero-name">MODEX</h3>
+            <div class="hero-stats">
+              <span>DISCO FEATHER: 2X</span>
+              <span>ELECTRIC VEINS</span>
             </div>
           </div>
         </div>
@@ -66,7 +79,7 @@
       <!-- Navigation Tabs -->
       <div class="menu-tabs">
         <button class="tab-btn active" data-tab="play">PLAY & STATS</button>
-        <button class="tab-btn" data-tab="characters">RUNNERS (CZAR)</button>
+        <button class="tab-btn" data-tab="characters">RUNNERS (3 HEROES)</button>
         <button class="tab-btn" data-tab="themes">THEMES</button>
         <button class="tab-btn" data-tab="custom">PROJECT ASSETS</button>
       </div>
@@ -104,7 +117,7 @@
           </div>
 
           <div class="action-bar">
-            <button id="btn-start-game" class="btn-primary glow-btn">TAP TO RUN WITH CZAR</button>
+            <button id="btn-start-game" class="btn-primary glow-btn">TAP TO RUN</button>
           </div>
         </div>
 
@@ -116,20 +129,15 @@
               <span class="card-title">CZAR</span>
               <span class="card-desc">Cyber Skeleton Runner with beanie, red X eyepatch & wire spine</span>
             </div>
-            <div class="card-item" data-char-id="ninja">
-              <span class="card-icon">🥷</span>
-              <span class="card-title">NEON SHADOW</span>
-              <span class="card-desc">Cybernetic stealth blade runner</span>
+            <div class="card-item" data-char-id="ilkery">
+              <span class="card-icon">🐯</span>
+              <span class="card-title">ILKERY</span>
+              <span class="card-desc">Wild 3-Eyed Mutant Tiger Runner with BE KIND REWIND tee</span>
             </div>
-            <div class="card-item" data-char-id="mech">
-              <span class="card-icon">🤖</span>
-              <span class="card-title">ASTRO MECH</span>
-              <span class="card-desc">Heavy armored exo-suit</span>
-            </div>
-            <div class="card-item" data-char-id="synth">
-              <span class="card-icon">🕶️</span>
-              <span class="card-title">SYNTH RIDER</span>
-              <span class="card-desc">Retro hover shade runner</span>
+            <div class="card-item" data-char-id="modex">
+              <span class="card-icon">⚡</span>
+              <span class="card-title">MODEX</span>
+              <span class="card-desc">Anime Cyber Runner with cyan hair, visor & Robinhood Feather emblem</span>
             </div>
           </div>
         </div>
@@ -231,7 +239,7 @@
   <!-- Game Over Overlay -->
   <div id="game-over-overlay" class="ui-layer hidden">
     <div class="modal-card">
-      <h2 class="modal-title danger-title">BEAR CAUGHT CZAR!</h2>
+      <h2 id="go-title" class="modal-title danger-title">BEAR CAUGHT RUNNER!</h2>
       <div class="score-breakdown">
         <div class="score-row">
           <span>FINAL SCORE</span>
@@ -247,7 +255,7 @@
         </div>
       </div>
       <div class="modal-actions">
-        <button id="btn-restart-go" class="btn-primary glow-btn">RUN AGAIN WITH CZAR</button>
+        <button id="btn-restart-go" class="btn-primary glow-btn">RUN AGAIN</button>
         <button id="btn-menu-go" class="btn-secondary">MAIN MENU</button>
       </div>
     </div>

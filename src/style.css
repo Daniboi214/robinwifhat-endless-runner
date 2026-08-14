@@ -308,12 +308,12 @@ html, body {
 /* 🦸 HERO SHOWCASE ROW (CZAR & ROBINWIFHAT CREST) */
 .hero-showcase-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
   margin-top: 4px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .hero-showcase-row {
     grid-template-columns: 1fr;
   }

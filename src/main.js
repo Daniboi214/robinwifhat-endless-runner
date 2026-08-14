@@ -45,6 +45,7 @@ class App {
     this.finalScoreVal = document.getElementById('go-final-score');
     this.finalCoinsVal = document.getElementById('go-coins');
     this.finalDistVal = document.getElementById('go-distance');
+    this.goTitle = document.getElementById('go-title');
 
     this.btnStart = document.getElementById('btn-start-game');
     this.btnRestartGo = document.getElementById('btn-restart-go');
@@ -140,8 +141,12 @@ class App {
     const char = Object.values(CHARACTERS).find(c => c.id === this.selectedCharId);
     const theme = Object.values(THEMES).find(t => t.id === this.selectedThemeId);
 
-    if (this.currentCharName) this.currentCharName.textContent = this.selectedCharId === 'skeleton' ? 'CZAR' : (char ? char.name : 'CZAR');
+    const runnerName = char ? char.name : 'CZAR';
+    if (this.currentCharName) this.currentCharName.textContent = runnerName;
     if (theme && this.currentThemeName) this.currentThemeName.textContent = theme.name;
+
+    if (this.btnStart) this.btnStart.textContent = `TAP TO RUN WITH ${runnerName}`;
+    if (this.btnRestartGo) this.btnRestartGo.textContent = `RUN AGAIN WITH ${runnerName}`;
 
     this.renderCharacterGrid();
     this.renderThemeGrid();
@@ -356,6 +361,10 @@ class App {
     this.hud.classList.add('hidden');
     this.gameOverOverlay.classList.remove('hidden');
 
+    const char = Object.values(CHARACTERS).find(c => c.id === this.selectedCharId);
+    const runnerName = char ? char.name : 'RUNNER';
+
+    if (this.goTitle) this.goTitle.textContent = `BEAR CAUGHT ${runnerName}!`;
     if (this.finalScoreVal) this.finalScoreVal.textContent = stats.score.toLocaleString();
     if (this.finalCoinsVal) this.finalCoinsVal.textContent = `+${stats.coins.toLocaleString()}`;
     if (this.finalDistVal) this.finalDistVal.textContent = `${stats.distance} m`;
